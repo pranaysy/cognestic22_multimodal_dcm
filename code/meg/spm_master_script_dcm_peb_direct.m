@@ -158,9 +158,9 @@ DCM.B{1} = double(DCM.A{1} | DCM.A{2} | DCM.A{3} | self_connections);
 DCM.C = [1 1 0 0]';
 
 % Save full model
-DCM_Full = DCM; % Keep DCM in memory
 dcm_full_file = fullfile(fits_dir, 'templates', 'DCMs', strcat(DCM.name, '.mat'));
-save(dcm_full_file, 'DCM_Full')
+save(dcm_full_file, 'DCM')
+DCM_Full = DCM; % Keep DCM in memory
 
 %--------------------------------------------------------------------------
 % STEP 5: Specify reduced models, if any
@@ -252,6 +252,20 @@ save(fullfile(fits_dir, 'PEB_Full'), 'PEB')
 spm_dcm_peb_review(PEB, GCM)
 
 %---------------------------------------------------------------------------------------
+% OUTPUTS
+%---------------------------------------------------------------------------------------
+% Running this section will produce the following outputs in the folder 'fits_dir'
+% 1. GCM specification file called 'GCM_DCM_Full.mat' under fits_dir/templates/GCMs/Full
+%       This is the GCM array with full DCM models which has not yet been fitted
+% 2. Estimated GCM file called 'GCM_Full.mat' under fits_dir
+%       This is the GCM array consisting of fitted DCM models
+% 3. Estimated PEB file called 'PEB_Full.mat' under fits_dir
+%       This is the group PEB estimate from the last step in the batch pipeline
+% 4. Additionally, individual DCM fits are also stored in fits_dir/templates/GCMs/Full
+%       These are the same as the estimated GCM file in (2) but are one per subject (16
+%       total) instead of an array like GCM. Useful for quick inspection in the DCM GUI.
+
+%---------------------------------------------------------------------------------------
 %
 %      .d8888b.                                    888      
 %     d88P  Y88b                                   888      
@@ -279,6 +293,14 @@ save(fullfile(fits_dir, 'BMA_search_PEB_Full'), 'BMA')
 spm_dcm_peb_review(BMA, GCM)
 
 %---------------------------------------------------------------------------------------
+% OUTPUTS
+%---------------------------------------------------------------------------------------
+% Running this section will produce the following output in the folder 'fits_dir'
+% 1. BMA file called 'BMA_search_PEB_Full.mat' under fits_dir
+%       This is the BMA obtained after averaging reduced models that contribute
+%       significantly to model evidence.
+
+%---------------------------------------------------------------------------------------
 %
 %      .d8888b.                                                           
 %     d88P  Y88b                                                          
@@ -299,250 +321,30 @@ spm_dcm_peb_review(BMA, GCM)
 % STEP 1: Bayesian Model Selection
 %---------------------------------------------------------------------------------------
 
-% Construct model space
-modelspace = {};
-for k=1:size(GCM, 2)
-    model = GCM{1, k};
-    if isfield(model, 'M')
-        model = rmfield(model, 'M'); % Fitted model creates errors
-    end
-    modelspace{k} = model;
-end
+% Construct model space with 'full' and 'self' models
+GCM = {DCM_Full, DCM_Self};
 
 % Save model space
-save(fullfile(fits_dir,'templates', 'GCMs', 'Full_vs_Self', 'GCM_Full_vs_Self.mat'), 'modelspace')
+save(fullfile(fits_dir,'templates', 'GCMs', 'Full_vs_Self', 'GCM_Full_vs_Self.mat'), 'GCM')
 
-[BMA, BMR] = spm_dcm_peb_bmc(PEB, modelspace);
+% Perform reduction of the nested 'self' model and estimate BMA
+[BMA, BMR] = spm_dcm_peb_bmc(PEB, GCM);
 
 % Write to disk
-save('BMC_PEB_Full_vs_Self', 'BMA', 'BMR')
+save(fullfile(fits_dir, 'BMA_PEB_Full_vs_Self'), 'BMA')
 
 %---------------------------------------------------------------------------------------
 % STEP 2: Review estimated BMA
 %---------------------------------------------------------------------------------------
-spm_dcm_peb_review(BMA, GCMp)
+spm_dcm_peb_review(BMA, GCM)
 
 %---------------------------------------------------------------------------------------
-%
-%     888b     d888                               888888b.   888b     d888  .d8888b.  
-%     8888b   d8888                               888  "88b  8888b   d8888 d88P  Y88b 
-%     88888b.d88888                               888  .88P  88888b.d88888 888    888 
-%     888Y88888P888  .d88b.  888d888 .d88b.       8888888K.  888Y88888P888 888        
-%     888 Y888P 888 d88""88b 888P"  d8P  Y8b      888  "Y88b 888 Y888P 888 888        
-%     888  Y8P  888 888  888 888    88888888      888    888 888  Y8P  888 888    888 
-%     888   "   888 Y88..88P 888    Y8b.          888   d88P 888   "   888 Y88b  d88P 
-%     888       888  "Y88P"  888     "Y8888       8888888P"  888       888  "Y8888P"
-%
+% OUTPUTS
 %---------------------------------------------------------------------------------------
-% Since we observed significant modulation of between-region connections, we can zoom
-% in and test for modulation of selective groups of connections like forward, backward
-% and lateral connections. We demo this sequential hypothesis testing here using BMC.
-
-%---------------------------------------------------------------------------------------
-%
-%     8888888888                                                  888 
-%     888                                                         888 
-%     888                                                         888 
-%     8888888  .d88b.  888d888 888  888  888  8888b.  888d888 .d88888 
-%     888     d88""88b 888P"   888  888  888     "88b 888P"  d88" 888 
-%     888     888  888 888     888  888  888 .d888888 888    888  888 
-%     888     Y88..88P 888     Y88b 888 d88P 888  888 888    Y88b 888 
-%     888      "Y88P"  888      "Y8888888P"  "Y888888 888     "Y88888
-%
-%---------------------------------------------------------------------------------------
-% Test for Modulation of Forward Connections
-
-%---------------------------------------------------------------------------------------
-% STEP 1: Define model space
-%---------------------------------------------------------------------------------------
-
-% Get full DCM specification
-if isfield(DCM_Full, 'M')
-    DCM_Full = rmfield(DCM_Full, 'M');
-end
-DCM = DCM_Full;
-
-% Switch off Forward connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  1    1    1    0  ];   % lOFA
-    [  1    1    0    1  ];   % rOFA
-    [  0    0    1    1  ];   % lFFA
-    [  0    0    1    1  ];   % rFFA
-];
-
-% Model Space
-models = {DCM_Full, DCM};
-
-%---------------------------------------------------------------------------------------
-% STEP 2: BMR and BMC
-%---------------------------------------------------------------------------------------
-[BMA, BMR] = spm_dcm_peb_bmc(PEB, models);
-
-% Write to disk
-save('BMC_PEB_Forward', 'BMA', 'BMR')
-
-%---------------------------------------------------------------------------------------
-% STEP 3: Review
-%---------------------------------------------------------------------------------------
-spm_dcm_peb_review(BMA, GCMp)
-
-% No forward connections from OFA to FFA are modulated by Faces
-
-%---------------------------------------------------------------------------------------
-%
-%     888888b.                     888                                         888 
-%     888  "88b                    888                                         888 
-%     888  .88P                    888                                         888 
-%     8888888K.   8888b.   .d8888b 888  888 888  888  888  8888b.  888d888 .d88888 
-%     888  "Y88b     "88b d88P"    888 .88P 888  888  888     "88b 888P"  d88" 888 
-%     888    888 .d888888 888      888888K  888  888  888 .d888888 888    888  888 
-%     888   d88P 888  888 Y88b.    888 "88b Y88b 888 d88P 888  888 888    Y88b 888 
-%     8888888P"  "Y888888  "Y8888P 888  888  "Y8888888P"  "Y888888 888     "Y88888
-%
-%---------------------------------------------------------------------------------------
-% Test for Modulation of Backward Connections
-
-%---------------------------------------------------------------------------------------
-% STEP 1: Define model space
-%---------------------------------------------------------------------------------------
-
-% Get full DCM specification
-if isfield(DCM_Full, 'M')
-    DCM_Full = rmfield(DCM_Full, 'M');
-end
-DCM = DCM_Full;
-
-% Switch off Backward connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  1    1    0    0  ];   % lOFA
-    [  1    1    0    0  ];   % rOFA
-    [  1    0    1    1  ];   % lFFA
-    [  0    1    1    1  ];   % rFFA
-];
-
-% Model Space
-models = {DCM_Full, DCM};
-
-%---------------------------------------------------------------------------------------
-% STEP 2: BMR and BMC
-%---------------------------------------------------------------------------------------
-[BMA, BMR] = spm_dcm_peb_bmc(PEB, models);
-
-% Write to disk
-save('BMC_PEB_Backward', 'BMA', 'BMR')
-
-%---------------------------------------------------------------------------------------
-% STEP 3: Review
-%---------------------------------------------------------------------------------------
-spm_dcm_peb_review(BMA, GCMp)
-
-% Both backward connections from FFA to OFA are modulated by Faces
-
-%---------------------------------------------------------------------------------------
-%
-%     888               888                            888 
-%     888               888                            888 
-%     888               888                            888 
-%     888       8888b.  888888 .d88b.  888d888 8888b.  888 
-%     888          "88b 888   d8P  Y8b 888P"      "88b 888 
-%     888      .d888888 888   88888888 888    .d888888 888 
-%     888      888  888 Y88b. Y8b.     888    888  888 888 
-%     88888888 "Y888888  "Y888 "Y8888  888    "Y888888 888
-%
-%---------------------------------------------------------------------------------------
-% Test for Modulation of Lateral Connections
-
-%---------------------------------------------------------------------------------------
-% STEP 1: Define model space
-%---------------------------------------------------------------------------------------
-
-% Get full DCM specification
-if isfield(DCM_Full, 'M')
-    DCM_Full = rmfield(DCM_Full, 'M');
-end
-DCM = DCM_Full;
-
-% Switch off Lateral connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  1    0    1    0  ];   % lOFA
-    [  0    1    0    1  ];   % rOFA
-    [  1    0    1    0  ];   % lFFA
-    [  0    1    0    1  ];   % rFFA
-];
-
-% Model Space
-models = {DCM_Full, DCM};
-
-%---------------------------------------------------------------------------------------
-% STEP 2: BMR and BMC
-%---------------------------------------------------------------------------------------
-[BMA, BMR] = spm_dcm_peb_bmc(PEB, models);
-
-% Write to disk
-save('BMC_PEB_Lateral', 'BMA', 'BMR')
-
-%---------------------------------------------------------------------------------------
-% STEP 3: Review
-%---------------------------------------------------------------------------------------
-spm_dcm_peb_review(BMA, GCMp)
-
-% Bidirectional lateral connections between both OFA and FFA are modulated by Faces
-% Follow-up: Test for OFA and FFA separately?
-
-%---------------------------------------------------------------------------------------
-%
-%      .d8888b.           888  .d888 
-%     d88P  Y88b          888 d88P"  
-%     Y88b.               888 888    
-%      "Y888b.    .d88b.  888 888888 
-%         "Y88b. d8P  Y8b 888 888    
-%           "888 88888888 888 888    
-%     Y88b  d88P Y8b.     888 888    
-%      "Y8888P"   "Y8888  888 888
-%
-%---------------------------------------------------------------------------------------
-% After testing which between-region connections are modulated, we test which self
-% connections are modulated by faces.
-
-%---------------------------------------------------------------------------------------
-% STEP 1: Define model space
-%---------------------------------------------------------------------------------------
-
-% Get full DCM specification
-if isfield(DCM_Full, 'M')
-    DCM_Full = rmfield(DCM_Full, 'M');
-end
-DCM = DCM_Full;
-
-% Switch off Self connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  0    1    1    0  ];   % lOFA
-    [  1    0    0    1  ];   % rOFA
-    [  1    0    0    1  ];   % lFFA
-    [  0    1    1    0  ];   % rFFA
-];
-
-% Model Space
-models = {DCM_Full, DCM};
-
-%---------------------------------------------------------------------------------------
-% STEP 2: BMR and BMC
-%---------------------------------------------------------------------------------------
-[BMA, BMR] = spm_dcm_peb_bmc(PEB, models);
-
-% Write to disk
-save('BMC_PEB_Self', 'BMA', 'BMR')
-
-%---------------------------------------------------------------------------------------
-% STEP 3: Review
-%---------------------------------------------------------------------------------------
-spm_dcm_peb_review(BMA, GCMp)
-
-% No self connections in OFA and FFA are modulated by Faces
+% Running this section will produce the following output in the folder 'fits_dir'
+% 1. BMA file called 'BMA_PEB_Full_sv_Self.mat' under fits_dir
+%       This is the BMA obtained after taking a weighted average of the full and reduced
+%       self models. 
 
 %---------------------------------------------------------------------------------------
 %
@@ -556,67 +358,76 @@ spm_dcm_peb_review(BMA, GCMp)
 %     888     "Y888888 888  888  888 888 888 888  "Y8888   88888P'
 %
 %---------------------------------------------------------------------------------------
-% Instead of testing for modulation of all self-connections versus none, we could ask
-% whether any self-connection is being modulated at all. This involves multiple models
-% with different combinations of self-connections being modulated. The model space
-% therefore expands from just 2 models, like the previous BMC, to a much larger number
-% of models. As an example here, we consider bilateral pairs of OFA and FFA, and test
-% whether at least one self-connection was modulated by faces. These leads to a model
-% space consisting of these four models:
-%       1. Modulation of both OFA and FFA self-connections
-%       2. Modulation of only OFA self-connections
-%       3. Modulation of only FFA self-connections
-%       4. Modulation of no self-connections
-% The first three models encapsulate the hypothesis: are any self-connections modulated
-% by faces? While the fourth model corresponds to the alternate hypothesis that no
-% self-connections are modulated. Accordingly, we group these models into two families,
-% and perform inference at the level of model families, rather than at the level of the
-% individual models.
 
 %---------------------------------------------------------------------------------------
-% STEP 1: Setup model space and families
+% STEP 1: Define model space
 %---------------------------------------------------------------------------------------
 
-% >> Family 1: Atleast one self-connection
-% > Model 1 is the full model with both OFA and FFA self-connections
+% As usual, our model space is a GCM
+GCM = {};
+
+% Remove priors if present, they interfere with the internal model comparison code
 if isfield(DCM_Full, 'M')
     DCM_Full = rmfield(DCM_Full, 'M');
 end
-DCM_m1 = DCM_Full;
 
-% > Model 2 has OFA self-connections only
+% 1. Model F+B+S (= Full model)
+GCM{1, 1} = DCM_Full;
+
+% 2. Model F+S (= No-backward, with Self)
 % Get full DCM specification
-DCM_m2 = DCM_m1;
+DCM = DCM_Full;
 
-% Switch off FFA self-connections in B-matrix
-DCM_m2.B{1} =  [
+% Switch off Backward connections in B-matrix
+DCM.B{1} =  [
 %    lOFA rOFA lFFA rFFA
-    [  1    1    1    0  ];   % lOFA
-    [  1    1    0    1  ];   % rOFA
-    [  1    0    0    1  ];   % lFFA
-    [  0    1    1    0  ];   % rFFA
-];
-
-% > Model 3 has FFA self-connections only
-% Get full DCM specification
-DCM_m3 = DCM_m1;
-
-% Switch off OFA self-connections in B-matrix
-DCM_m3.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  0    1    1    0  ];   % lOFA
-    [  1    0    0    1  ];   % rOFA
+    [  1    1    0    0  ];   % lOFA
+    [  1    1    0    0  ];   % rOFA
     [  1    0    1    1  ];   % lFFA
     [  0    1    1    1  ];   % rFFA
 ];
 
-% >> Family 2: No self-connections
-% > Model 4 has no self-connections
-% Get full DCM specification
-DCM_m4 = DCM_m1;
+% Append to GCM
+GCM{1, 2} = DCM;
 
-% Switch off all self-connections in B-matrix
-DCM_m4.B{1} =  [
+% 3. Model B+S (= No-forward, with Self)
+% Get full DCM specification
+DCM = DCM_Full;
+
+% Switch off Forward connections in B-matrix
+DCM.B{1} =  [
+%    lOFA rOFA lFFA rFFA
+    [  1    1    1    0  ];   % lOFA
+    [  1    1    0    1  ];   % rOFA
+    [  0    0    1    1  ];   % lFFA
+    [  0    0    1    1  ];   % rFFA
+];
+
+% Append to GCM
+GCM{1, 3} = DCM;
+
+% 4. Model S (= Neither forward nor backward, only Self)
+% Get full DCM specification
+DCM = DCM_Full;
+
+% Switch off Forward and Backward connections in B-matrix
+DCM.B{1} =  [
+%    lOFA rOFA lFFA rFFA
+    [  1    1    0    0  ];   % lOFA
+    [  1    1    0    0  ];   % rOFA
+    [  0    0    1    1  ];   % lFFA
+    [  0    0    1    1  ];   % rFFA
+];
+
+% Append to GCM
+GCM{1, 4} = DCM;
+
+% 5. Model F+B (= Both forward and backward, without Self)
+% Get full DCM specification
+DCM = DCM_Full;
+
+% Switch off Self connections in B-matrix
+DCM.B{1} =  [
 %    lOFA rOFA lFFA rFFA
     [  0    1    1    0  ];   % lOFA
     [  1    0    0    1  ];   % rOFA
@@ -624,41 +435,162 @@ DCM_m4.B{1} =  [
     [  0    1    1    0  ];   % rFFA
 ];
 
-% Define family-wise model space
-models = {DCM_m1, DCM_m2, DCM_m3, DCM_m4};
-families = [1, 1, 1, 2];
+% Append to GCM
+GCM{1, 5} = DCM;
+
+% 6. Model F (= No-backward, without Self)
+% Get full DCM specification
+DCM = DCM_Full;
+
+% Switch off Backward connections in B-matrix
+DCM.B{1} =  [
+%    lOFA rOFA lFFA rFFA
+    [  0    1    0    0  ];   % lOFA
+    [  1    0    0    0  ];   % rOFA
+    [  1    0    0    1  ];   % lFFA
+    [  0    1    1    0  ];   % rFFA
+];
+
+% Append to GCM
+GCM{1, 6} = DCM;
+
+% 7. Model B (= No-forward, without Self)
+% Get full DCM specification
+DCM = DCM_Full;
+
+% Switch off Forward and Self connections in B-matrix
+DCM.B{1} =  [
+%    lOFA rOFA lFFA rFFA
+    [  0    1    1    0  ];   % lOFA
+    [  1    0    0    1  ];   % rOFA
+    [  0    0    0    1  ];   % lFFA
+    [  0    0    1    0  ];   % rFFA
+];
+
+% Append to GCM
+GCM{1, 7} = DCM;
+
+% 8. Model with no F/B/S (= Null model)
+% Get full DCM specification
+DCM = DCM_Full;
+
+% Switch off Forward, Backward & Self connections in B-matrix
+DCM.B{1} =  [
+%    lOFA rOFA lFFA rFFA
+    [  0    1    0    0  ];   % lOFA
+    [  1    0    0    0  ];   % rOFA
+    [  0    0    0    1  ];   % lFFA
+    [  0    0    1    0  ];   % rFFA
+];
+
+% Append to GCM
+GCM{1, 8} = DCM;
+
+% Save model space
+gcm_families_file = fullfile(fits_dir, 'templates', 'GCMs', 'Families', 'GCM_ModelSpace8.mat');
+save(gcm_families_file, 'GCM')
+
+% Visualize model space
+figure;
+for k=1:8
+    subplot(2,4,k);
+    imagesc(GCM{1, k}.B{1} + 0.75*fliplr(eye(Nareas)));
+    colormap(gray)
+    caxis([0, 1])
+    title(sprintf('Model %02d', k))
+    axis square
+end
 
 %---------------------------------------------------------------------------------------
-% STEP 2: Perform BMR of model space nested under PEB
+% STEP 2: Load estimated PEB and perform BMR of model space
 %---------------------------------------------------------------------------------------
+
+% Load estimated PEB from file
+load(fullfile(fits_dir, 'PEB_Full.mat'))
 
 % Bayesian Model Reduction (BMR) and comparison of models
-[BMA, BMR] = spm_dcm_peb_bmc(PEB, models);
-% Best model appears to be the one with modulation of only FFA self-connections
-% This contradicts the previous BMC, where no self connections were modulated by Faces
+[BMA, BMR] = spm_dcm_peb_bmc(PEB, GCM);
 
-% Write to disk
-save('BMC_PEB_Self_ExpandedModelSpace', 'BMA', 'BMR')
-
-% We now group models under families & consider each family as equally likely. This lets
-% us pool model evidence within each family, and instead of picking a winning model, we
-% perform inference about characteristics that define models grouped under that family.
-% The characteristic here being modulation of self-connections, so models with any self
-% connections i.e. models 1, 2 and 3, belong to the same family.
+% Save BMA and BMR
+outfile = fullfile(fits_dir, 'BMA_BMR_Families.mat');
+save(outfile, 'BMA', 'BMR')
 
 %---------------------------------------------------------------------------------------
-% STEP 3: Compare families of models
+% STEP 3: Group models into families and compare
 %---------------------------------------------------------------------------------------
+% Now partition the model space into families and perform comparisons at the level of
+% families to test hypotheses about modulation of connection groups due to faces
 
-% Bayesian Model Selection (BMS) and averaging over families of models
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% HYPOTHESIS 1
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Are any between-region connections modulated regardless of self-connections?
+% Family 1: Models 1, 2, 3 & 5, 6, 7 have at least one forward or backward connection
+% Family 2: Models 4 and 8 have no F/B connections
+families = [1, 1, 1, 2, 1, 1, 1, 2];
 [BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
+% Family 1 has overwhelming evidence (~1) -> between-region connections are modulated
 
-% Write to disk
-save('BMC_PEB_Self_ExpandedModelSpace_Families', 'BMAf', 'fam')
+% Save this family-wise comparison
+outfile = fullfile(fits_dir, 'BMC_Families_BetweenRegion.mat');
+save(outfile, 'BMAf', 'fam')
 
-% The family of models with modulation of at least one self-connection has marginally
-% higher posterior probability than the family with no modulation of self-connections.
-% There is not enough evidence in favor of modulation of self-connections by faces.
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% HYPOTHESIS 2a
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Are any forward connections modulated regardless of backward or self-connections?
+% Family 1: Models 1, 2, 5, 6 have at least one forward connection
+% Family 2: Models 3, 4, 7, 8 have no forward connection
+families = [1, 1, 2, 2, 1, 1, 2, 2];
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
+% Family 2 has greater evidence (~0.8)
+
+% Save this family-wise comparison
+outfile = fullfile(fits_dir, 'BMC_Families_BetweenRegion_Forward.mat');
+save(outfile, 'BMAf', 'fam')
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% HYPOTHESIS 2b
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Are any backward connections modulated regardless of forward or self-connections?
+% Family 1: Models 1, 3, 5, 7 have at least one backward connection
+% Family 2: Models 2, 4, 6, 8 have no backward connection
+families = [1, 2, 1, 2, 1, 2, 1, 2];
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
+% Family 1 has overwhelming evidence (~1)
+
+% Save this family-wise comparison
+outfile = fullfile(fits_dir, 'BMC_Families_BetweenRegion_Backward.mat');
+save(outfile, 'BMAf', 'fam')
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% HYPOTHESIS 3
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Are any self connections modulated regardless of forward or backward connections?
+% Family 1: Models 1, 2, 3, 4 have at least one self connection
+% Family 2: Models 5, 6, 7, 8 have no self connection
+families = [1, 1, 1, 1, 2, 2, 2, 2];
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
+% Family 2 has moderately greater evidence (~0.6)
+
+% Save this family-wise comparison
+outfile = fullfile(fits_dir, 'BMC_Families_Self.mat');
+save(outfile, 'BMAf', 'fam')
+
+%---------------------------------------------------------------------------------------
+% OUTPUTS
+%---------------------------------------------------------------------------------------
+% Running this section will produce the following output in the folder 'fits_dir'
+% 1. GCM model space file 'GCM_ModelSpace8.mat' in fits_dir/templates/GCMs/Families
+%       This file consists of the 8 models we specified as columns of the GCM cell array
+% 2. BMA and BMR in the file 'BMA_BMR_Families.mat' in fits_dir
+%       This file consists of both BMA and BMR variables which represent the average
+%       over all 8 models and the 8 reduced models respectively.
+% 3. Four files in fits_dir, one for each hypothesis and family-wise comparison:
+%       i. 'BMC_Families_BetweenRegion.mat': Modulation of any between-region connections
+%       ii. 'BMC_Families_BetweenRegion_Forward.mat': Modulation of any forward connections
+%       iii. 'BMC_Families_BetweenRegion_Backward.mat': Modulation of any backward connections
+%       iv. 'BMC_Families_Self.mat': Modulation of any self-connections
 
 %---------------------------------------------------------------------------------------
 %
@@ -695,17 +627,28 @@ M.X = [ones([length(input_files), 1]), covariate_values]; % First covariate is g
 M.Xnames = {'Commonalities', 'Age'};
 M.Q = 'all'; % Random effects over all parameters
 
+% Load fitted GCM
+load(fullfile(fits_dir, 'GCM_Full'))
+
 %---------------------------------------------------------------------------------------
 % STEP 2: Fit 2nd-level PEB
 %---------------------------------------------------------------------------------------
-[PEB, GCMp] = spm_dcm_peb(GCMf, M, {'B'});
+PEB = spm_dcm_peb(GCM, M, {'B'});
 
 % Write to disk
-save('PEB_Covariate_Fit', 'PEB', 'GCMp')
+save(fullfile(fits_dir, 'PEB_Age'), 'PEB')
+
 %---------------------------------------------------------------------------------------
 % STEP 3: Review
 %---------------------------------------------------------------------------------------
-spm_dcm_peb_review(PEB, GCMp)
+spm_dcm_peb_review(PEB, GCM)
 
-% Age has no effect on modulation of connections due to faces except for a small effect
-% on rFFA self-connection.
+% Greedy search for nested models on this PEB can be done to perform inference and
+% identify which connections modulated by faces are affected by age.
+
+%---------------------------------------------------------------------------------------
+% OUTPUTS
+%---------------------------------------------------------------------------------------
+% Running this batch job will produce the following outputs in the folder 'fits_dir'
+% 1. Estimated PEB file called 'PEB_Age.mat' under fits_dir
+%       This is the group PEB estimated with age as a covariate.

@@ -542,7 +542,7 @@ save(outfile, 'BMA', 'BMR')
 %---------------------------------------------------------------------------------------
 % STEP 3: Group models into families and compare
 %---------------------------------------------------------------------------------------
-% Now we partition the model space into families and perform comparisons at the level of
+% Now partition the model space into families and perform comparisons at the level of
 % families to test hypotheses about modulation of connection groups due to faces
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
