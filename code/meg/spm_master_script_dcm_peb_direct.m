@@ -1,4 +1,28 @@
 %---------------------------------------------------------------------------------------
+% Group Dynamic Causal Modelling of the Face Perception Network using MEG
+%---------------------------------------------------------------------------------------
+% This script consists of SPM and MATLAB code for fitting Dynamic Causal Models on MEG
+% evoked responses. All analyses covered were presented as a tutorial at COGNESTIC-22 in
+% September 2022 at the MRC Cognition and Brain Sciences Unit. The script covers
+% specification of a single DCM, replication of this specified DCM to multiple subjects
+% (called a GCM) and fitting this 'group' DCM in parallel. Further, various ways to
+% perform inference at the group level using a hierarchical Bayesian framework called
+% Parametric Empirical Bayes (PEB) are also demonstrated. These include greedy search of
+% nested models, binary model comparison of nested models, and comparing families of
+% nested models. Lastly, the inclusion of subject-level covariates for inference at the
+% group level are also demo'ed in brief.
+
+% Note that this script uses the 'batch' interface exposed by SPM, which in turn is
+% built on MATLAB's batching functionality.
+
+% Sections in this script are organized in the same order as covered in the tutorial.
+
+% Authored in September 2022 by:
+%   Pranay Yadav - pranay.yadav@mrc-cbu.cam.ac.uk
+% With help from:
+%   Rik Henson - rik.henson@mrc-cbu.cam.ac.uk
+
+%---------------------------------------------------------------------------------------
 %                                                            
 %      .d8888b.           888                      
 %     d88P  Y88b          888                      
