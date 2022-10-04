@@ -12,8 +12,8 @@
 % nested models. Lastly, the inclusion of subject-level covariates for inference at the
 % group level are also demo'ed in brief.
 
-% Note that this script directly calls relevant SPM functions for executing tasks, and
-% does not rely on the batch system exposed by SPM/MATLAB.
+% Note that this script uses the 'batch' interface exposed by SPM, which in turn is
+% built on MATLAB's batching functionality.
 
 % Sections in this script are organized in the same order as covered in the tutorial.
 
@@ -21,6 +21,10 @@
 %   Pranay Yadav - pranay.yadav@mrc-cbu.cam.ac.uk
 % With help from:
 %   Rik Henson - rik.henson@mrc-cbu.cam.ac.uk
+
+% Processed DCM-ready data can be obtained from:
+%   Yadav, Pranay; Henson, Rik (2022): Face processing M/EEG data for Dynamic Causal
+%   Modelling. figshare. Dataset. https://doi.org/10.6084/m9.figshare.21130297.v2 
 
 %---------------------------------------------------------------------------------------
 %                                                            
