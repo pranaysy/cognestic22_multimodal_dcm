@@ -22,9 +22,24 @@
 % With help from:
 %   Rik Henson - rik.henson@mrc-cbu.cam.ac.uk
 
-% Processed DCM-ready data can be obtained from:
+%---------------------------------------------------------------------------------------
+% Data Sources
+%---------------------------------------------------------------------------------------
+
+% A. Processed DCM-ready data can be obtained from:
 %   Yadav, Pranay; Henson, Rik (2022): Face processing M/EEG data for Dynamic Causal
 %   Modelling. figshare. Dataset. https://doi.org/10.6084/m9.figshare.21130297.v2 
+
+% B. Alternatively, raw data can be obtained from:
+%   Wakeman, D.G. & Henson, R.N. (2015). A multi-subject, multi-modal human neuroimaging
+%   dataset. Sci. Data 2:150001 https://doi.org/10.1038/sdata.2015.1
+% Process this data as per the tutorial instructed in:
+%   Henson RN, Abdulrahman H, Flandin G and Litvak V (2019) Multimodal Integration of
+%   M/EEG and f/MRI Data in SPM12. Front. Neurosci. 13:300.
+%   https://doi.org/10.3389/fnins.2019.00300
+% Notable deviations from the script in the processing of data used in this tutorial:
+%   1. Baseline correction is done during epoching for this tutorial, skipped in paper.
+%   2. Robust averaging is done per condition for this tutorial (simple avg in paper).
 
 %---------------------------------------------------------------------------------------
 %                                                            
