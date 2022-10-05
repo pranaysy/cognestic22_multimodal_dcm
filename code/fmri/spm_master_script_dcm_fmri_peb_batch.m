@@ -443,7 +443,7 @@ templatedir = fullfile(fmri_fits, 'templates', 'GCMs', GCMname);
 % Note: innermost folder name is same as GCM file name
 
 % Path to job file for executing this operation
-jobfile = {fullfile(scrpth,'fmri', 'batch_create_gcm_job.m')}; 
+jobfile = {fullfile(scrpth,'fmri', 'batch_dcm_create_gcm_job.m')}; 
 
 %---------------------------------------------------------------------------------------
 % STEP 2: Specify inputs
@@ -502,7 +502,7 @@ spm_jobman('run', jobfile, inputs{:});
 %---------------------------------------------------------------------------------------
 
 % Path to job file for executing this operation
-jobfile = {fullfile(scrpth,'fmri','batch_fit_gcm_job.m')}; 
+jobfile = {fullfile(scrpth,'fmri','batch_dcm_fit_gcm_job.m')}; 
 
 % Path to GCM template specified in previous step
 GCMfile = fullfile(templatedir, ['GCM_' GCMname '.mat']);
@@ -562,7 +562,7 @@ spm_dcm_fmri_check(GCM);
 GCMfile = fullfile(fmri_fits,['GCM_' GCMname '.mat']);
 
 % Path to job file for executing this operation
-jobfile = {fullfile(scrpth,'fmri','batch_fit_peb_job.m')}; 
+jobfile = {fullfile(scrpth,'fmri','batch_dcm_fit_peb_job.m')}; 
 
 %---------------------------------------------------------------------------------------
 % STEP 2: Specify inputs
@@ -619,7 +619,7 @@ GCMfile = fullfile(fmri_fits,['GCM_' GCMname '.mat']);
 PEBfile = fullfile(fmri_fits,['PEB_' GCMname '.mat']);
 
 % Path to job file for executing this operation
-jobfile = {fullfile(scrpth,'fmri', 'batch_peb_bmr_search_job.m')}; 
+jobfile = {fullfile(scrpth,'fmri', 'batch_dcm_peb_bmr_search_job.m')}; 
 
 %---------------------------------------------------------------------------------------
 % STEP 2: Specify inputs
@@ -687,7 +687,7 @@ templatedir = fullfile(fmri_fits, 'templates', 'GCMs', GCMname);
 % Note: innermost folder name is same as GCM file name
 
 % Path to job file for executing this operation
-jobfile = {fullfile(scrpth,'fmri','batch_create_gcm_job.m')}; 
+jobfile = {fullfile(scrpth,'fmri','batch_dcm_create_gcm_job.m')}; 
 
 %---------------------------------------------------------------------------------------
 % STEP 3: Specify inputs
@@ -731,7 +731,7 @@ spm_jobman('run', jobfile, inputs{:});
 %---------------------------------------------------------------------------------------
 
 % Path to job file
-jobfile = {fullfile(scrpth,'fmri','batch_peb_bmc_job.m')}; 
+jobfile = {fullfile(scrpth,'fmri','batch_dcm_peb_bmc_job.m')}; 
 
 % Prepare inputs, 2 total, as per order listed in the job file
 inputs  = {};
