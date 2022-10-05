@@ -35,4 +35,5 @@ octave-workspace
 Job*
 matlab_metadata.mat
 
-
+# Cluster issue: can't delete git folder
+code/fmri/.fgit
