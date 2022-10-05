@@ -7,11 +7,7 @@ level2 = {'batch_gui', 'batch_script', 'direct_script'};
 level3 = {'fmri', 'meg'};
 level4 = {'templates'};
 level5 = {'DCMs', 'GCMs'};
-
-% Sub-folders for GCMs only
-level6.fmri = {'Full', 'Full_vs_Self', 'Families'};
-level6.meg = {'Full', 'Full_vs_Self', 'Families'};
-%level6.meg = {'Full', 'Full_vs_Self', 'Full_vs_Forward', 'Full_vs_Backward'};
+level6 = {'Full', 'Full_vs_Self', 'Families'}; % For GCMs only
 
 % Loop over each and make folders
 for l1=1:numel(level1)
@@ -19,15 +15,30 @@ for l1=1:numel(level1)
         for l3=1:numel(level3)
             for l4=1:numel(level4)
                 
+                % Make level4 directory
                 l4_dir = fullfile(rootdir, level1{l1}, level2{l2}, level3{l3}, level4{l4});
                 
                 % DCMs
-                mkdir(fullfile(l4_dir, level5{1}));
+                folderpath = fullfile(l4_dir, level5{1});
+                mkdir(folderpath);
+                
+                % Create empty file
+                if exist(fullfile(folderpath, '.empty'), 'file') == 0
+                    f = fopen(fullfile(folderpath, '.empty'), 'w' );  
+                    fclose(f);
+                end
                 
                 % GCMs
-                gcm_subdir = eval(['level6.' level3{l3}]); % Depends on modality
-                for l6=1:numel(gcm_subdir)
-                    mkdir(fullfile(l4_dir, level5{2}, gcm_subdir{l6}));
+                for l6=1:numel(level6)
+                    
+                    folderpath = fullfile(l4_dir, level5{2}, level6{l6});
+                    mkdir(folderpath);
+                    
+                    % Create empty file
+                    if exist(fullfile(folderpath, '.empty'), 'file') == 0
+                        f = fopen(fullfile(folderpath, '.empty'), 'w' );  
+                        fclose(f);
+                    end
                 end
                     
             end
