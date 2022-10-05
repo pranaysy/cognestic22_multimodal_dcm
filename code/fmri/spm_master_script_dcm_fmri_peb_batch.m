@@ -1,22 +1,54 @@
-% SPM12 script to run DCM for fMRI on the multi-subject, multi-modal human neuroimaging dataset 
-%
-% Preprocessing described in Henson et al. (2019) doi.org/10.3389/fnins.2019.00300
-%
-% Note that you will need to have latest version of SPM12 on your MATLAB
-% path, which you can download from here: 
-%       https://www.fil.ion.ucl.ac.uk/spm/software/download/
-%
-% You can either:
-% 
-% 1. downlaod the raw data, available from the OpenNeuro database in BIDS format: 
-%       https://openneuro.org/datasets/ds000117
-% and run the preprocessing steps described in Appendix 2 of:
-%       https://www.frontiersin.org/articles/10.3389/fnins.2019.00300/full#supplementary-material
+%---------------------------------------------------------------------------------------
+% Group Dynamic Causal Modelling of the Face Perception Network using MEG
+%---------------------------------------------------------------------------------------
+% This script consists of SPM and MATLAB code for fitting Dynamic Causal Models on fMRI
+% time courses. All analyses covered were presented as a tutorial at COGNESTIC-22 in
+% September 2022 at the MRC Cognition and Brain Sciences Unit. The script covers
+% specification of a single DCM, replication of this specified DCM to multiple subjects
+% (called a GCM) and fitting this 'group' DCM in parallel. Further, various ways to
+% perform inference at the group level using a hierarchical Bayesian framework called
+% Parametric Empirical Bayes (PEB) are also demonstrated. These include greedy search of
+% nested models, binary model comparison of nested models, and comparing families of
+% nested models. Lastly, the inclusion of subject-level covariates for inference at the
+% group level are also demo'ed in brief.
 
-% ...or 2. download preprocessed data from Figshare link
-%
-% rik.henson@mrc-cbu.cam.ac.uk                              Aug 2022
-% with help from Pranay Yadav
+% Note that this script uses the 'batch' interface exposed by SPM, which in turn is
+% built on MATLAB's batching functionality.
+
+% Sections in this script are organized in the same order as covered in the tutorial.
+
+% Authored in September 2022 by:
+%   Rik Henson - rik.henson@mrc-cbu.cam.ac.uk
+% With help from:
+%   Pranay Yadav - pranay.yadav@mrc-cbu.cam.ac.uk
+
+%---------------------------------------------------------------------------------------
+% Data Sources
+%---------------------------------------------------------------------------------------
+
+% A. Processed DCM-ready data can be obtained from:
+%   Henson, Rik (2022): fMRI VOI data. figshare. Dataset.
+%   https://doi.org/10.6084/m9.figshare.21270222.v1 
+% If you are starting with this data, then skip the steps 'COMBINE' and 'VOI' since the
+% data are already concatenated across runs, & consist of extracted VOIs. After 'SETUP'
+% jump directly to 'DCM'
+
+% B. Processed volumes per run per subject can be obtained from:
+%   Henson, Rik (2022): fMRI Data. figshare. Dataset.
+%   https://doi.org/10.6084/m9.figshare.20936143.v2 
+% These need to be processed further in order to fit DCMs. Steps include concatenation
+% across runs, followed by extraction of time courses from Volumes-of-Interest (VOI).
+% The sections 'COMBINE' and 'VOI' in this script cover these steps respectively.
+
+% C. Alternatively, raw data can be obtained from:
+%   Wakeman, D.G. & Henson, R.N. (2015). A multi-subject, multi-modal human neuroimaging
+%   dataset. Sci. Data 2:150001 https://doi.org/10.1038/sdata.2015.1
+% Process this data as per the tutorial instructed in Appendix 2 of:
+%   Henson RN, Abdulrahman H, Flandin G and Litvak V (2019) Multimodal Integration of
+%   M/EEG and f/MRI Data in SPM12. Front. Neurosci. 13:300.
+%   https://doi.org/10.3389/fnins.2019.00300
+% After processing, concatenate across runs and extract VOIs as described in (B) to
+% obtain DCM-ready data.
 
 %---------------------------------------------------------------------------------------
 %                                                            
