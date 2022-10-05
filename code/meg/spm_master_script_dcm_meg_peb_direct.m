@@ -61,23 +61,25 @@
 %---------------------------------------------------------------------------------------
 % STEP 1 
 %---------------------------------------------------------------------------------------
+clear
 
 % Add SPM12 to MATLAB Path
 addpath('/imaging/local/software/spm_cbu_svn/releases/spm12_latest/')
 
 %---------------------------------------------------------------------------------------
-% STEP 2 
+% STEP 2: Configure & launch SPM  
 %---------------------------------------------------------------------------------------
 
 % Initialize SPM
 spm('asciiwelcome');
 spm_jobman('initcfg'); % Allows batch operations inside a script
-%spm_get_defaults('cmdline',true);
+spm_get_defaults('cmdline',true);
 spm('defaults','EEG');
 
+spm eeg
 
 %---------------------------------------------------------------------------------------
-% STEP 3 
+% STEP 3: Variables for folders 
 %---------------------------------------------------------------------------------------
 
 % Specify root working directory 
@@ -200,7 +202,7 @@ DCM.B{1} = double(DCM.A{1} | DCM.A{2} | DCM.A{3} | self_connections);
 % C Matrix: Driving inputs
 DCM.C = [1 1 0 0]';
 
-% Save full model
+% Save full model as a template
 dcm_full_file = fullfile(fits_dir, 'templates', 'DCMs', strcat(DCM.name, '.mat'));
 save(dcm_full_file, 'DCM')
 DCM_Full = DCM; % Keep DCM in memory
@@ -213,7 +215,7 @@ DCM_Full = DCM; % Keep DCM in memory
 DCM.name = 'DCM_Self';
 DCM.B{1} = self_connections;
 
-% Save reduced model
+% Save reduced model as a template
 dcm_self_file = fullfile(fits_dir, 'templates', 'DCMs', strcat(DCM.name, '.mat'));
 save(dcm_self_file, 'DCM')
 DCM_Self = DCM; % Keep DCM in memory
@@ -300,13 +302,14 @@ spm_dcm_peb_review(PEB, GCM)
 % Running this section will produce the following outputs in the folder 'fits_dir'
 % 1. GCM specification file called 'GCM_DCM_Full.mat' under fits_dir/templates/GCMs/Full
 %       This is the GCM array with full DCM models which has not yet been fitted
+%       (From last, step 6 of the previous section)
 % 2. Estimated GCM file called 'GCM_Full.mat' under fits_dir
-%       This is the GCM array consisting of fitted DCM models
+%       This is the GCM array consisting of fitted DCM models, one row per subject
 % 3. Estimated PEB file called 'PEB_Full.mat' under fits_dir
 %       This is the group PEB estimate from the last step in the batch pipeline
 % 4. Additionally, individual DCM fits are also stored in fits_dir/templates/GCMs/Full
 %       These are the same as the estimated GCM file in (2) but are one per subject (16
-%       total) instead of an array like GCM. Useful for quick inspection in the DCM GUI.
+%       total) instead of an array like GCM. Useful for quick inspection in the DCM GUI. 
 
 %---------------------------------------------------------------------------------------
 %

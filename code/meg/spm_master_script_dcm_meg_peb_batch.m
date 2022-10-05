@@ -61,22 +61,25 @@
 %---------------------------------------------------------------------------------------
 % STEP 1 
 %---------------------------------------------------------------------------------------
+clear
 
 % Add SPM12 to MATLAB Path
 addpath('/imaging/local/software/spm_cbu_svn/releases/spm12_latest/')
 
 %---------------------------------------------------------------------------------------
-% STEP 2 
+% STEP 2: Configure & launch SPM 
 %---------------------------------------------------------------------------------------
 
 % Initialize SPM
 spm('asciiwelcome');
 spm_jobman('initcfg'); % Allows batch operations inside a script
-%spm_get_defaults('cmdline',true);
+spm_get_defaults('cmdline',true);
 spm('defaults','EEG');
 
+spm eeg
+
 %---------------------------------------------------------------------------------------
-% STEP 3 
+% STEP 3: Variables for folders
 %---------------------------------------------------------------------------------------
 
 % Specify root working directory 
@@ -202,7 +205,7 @@ DCM.C = [1 1 0 0]';
 % Save full model as a template
 dcm_full_file = fullfile(fits_dir, 'templates', 'DCMs', strcat(DCM.name, '.mat'));
 save(dcm_full_file, 'DCM')
-DCM_Full = DCM;
+DCM_Full = DCM; % Keep DCM in memory
 
 %--------------------------------------------------------------------------
 % STEP 5: Specify reduced models, if any
@@ -280,6 +283,9 @@ n_workers = length(input_files);
 P=cbupool(n_workers, '--mem-per-cpu=4G --time=12:00:00 --nodelist=node-j10');
 parpool(P, P.NumWorkers);
 
+% Run the following line to initialize pool if script is not being run at the CBU
+% parpool(n_workers); 
+
 % Call jobman with the jobfile and necessary inputs
 spm_jobman('run', jobfile, inputs{:});
 
@@ -290,7 +296,7 @@ spm_jobman('run', jobfile, inputs{:});
 % 1. GCM specification file called 'GCM_DCM_Full.mat' under fits_dir/templates/GCMs/Full
 %       This is the GCM array with full DCM models which has not yet been fitted
 % 2. Estimated GCM file called 'GCM_Full.mat' under fits_dir
-%       This is the GCM array consisting of fitted DCM models
+%       This is the GCM array consisting of fitted DCM models, one row per subject
 % 3. Estimated PEB file called 'PEB_Full.mat' under fits_dir
 %       This is the group PEB estimate from the last step in the batch pipeline
 % 4. Additionally, individual DCM fits are also stored in fits_dir/templates/GCMs/Full
@@ -671,7 +677,7 @@ save(outfile, 'BMAf', 'fam')
 %      "Y8888P"   "Y88P"    Y88P   "Y888888 888     888 "Y888888  "Y888 "Y8888   88888P'
 %
 %---------------------------------------------------------------------------------------
-% We demonstrate here the inclusion of covariates for 2nd-level/group inference with PEB.
+% We demonstrate the inclusion of covariates for 2nd-level (group) inference with PEB.
 % The dataset includes ages of participants, and while we do not anticipate any effect
 % of age on modulation of connections due to faces, we illustrate specification of age
 % as a covariate in the PEB design matrix for inference.
