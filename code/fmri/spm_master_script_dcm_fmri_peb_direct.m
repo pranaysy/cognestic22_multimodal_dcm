@@ -205,10 +205,10 @@ parfor (s = 1:nsub, numworkers)
     for r = 1:length(runs)       
         
         % Get files with volumes for this run
-        volfiles{r} = spm_select('ExtFPList',fullfile(derpth,subdir{s},'func'),sprintf('^swsub-.*run-%s_bold\\.nii$',runs{r}),[1:nscan(r)]);
+        volfiles{r} = spm_select('ExtFPList',fullfile(derpth,subdir{s},'fmri'),sprintf('^swsub-.*run-%s_bold\\.nii$',runs{r}),[1:nscan(r)]);
     
         % Get files with trial info for this run
-        trlfile = fullfile(derpth,subdir{s},'func',sprintf('sub-%s_run-%s_spmdef.mat',subs{s},runs{r}));
+        trlfile = fullfile(derpth,subdir{s},'fmri',sprintf('sub-%s_run-%s_spmdef.mat',subs{s},runs{r}));
         d = load(trlfile);
         
         % Read and assign onsets to conditions struct
@@ -219,7 +219,7 @@ parfor (s = 1:nsub, numworkers)
         time_so_far = time_so_far + nscan(r)*TR;
         
         % Get files with movement info for this run
-        d = load(spm_select('FPList',fullfile(derpth,subdir{s},'func'),sprintf('^rp.*run-%s.*\\.txt$',runs{r})));
+        d = load(spm_select('FPList',fullfile(derpth,subdir{s},'fmri'),sprintf('^rp.*run-%s.*\\.txt$',runs{r})));
         d = d(1:nscan(r),:);
         
         % Append movement parameters 
@@ -1039,7 +1039,7 @@ covariate_values = [31, 25, 30, 26, 23, 26, 31, 26, 29, 24, 24, 25, 24, 30, 25]'
 covariate_values = covariate_values - mean(covariate_values);
 
 % Design Matrix
-M.X = [ones([length(input_files), 1]), covariate_values]; % First covariate is group mean
+M.X = [ones([length(covariate_values), 1]), covariate_values]; % First covariate is group mean
 M.Xnames = {'Commonalities', 'Age'};
 M.Q = 'all'; % Random effects over all parameters
 

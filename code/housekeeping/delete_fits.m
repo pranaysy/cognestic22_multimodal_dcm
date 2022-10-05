@@ -14,7 +14,7 @@ recycle('on') % Permanently delete!
 % Delete everything (commented for safety by default!)
 for f=1:length(filelist)
     filename = fullfile(filelist(f).folder, filelist(f).name);
-    %delete(filename) % Uncomment to actually delete *.mat files in the 'fits' folder
+    delete(filename) % Uncomment to actually delete *.mat files in the 'fits' folder
 end
 
 % Reset recycling behaviour back to default
