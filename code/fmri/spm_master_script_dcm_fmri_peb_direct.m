@@ -27,8 +27,8 @@
 %---------------------------------------------------------------------------------------
 
 % A. Processed DCM-ready data can be obtained from:
-%   Henson, Rik (2022): fMRI VOI data. figshare. Dataset.
-%   https://doi.org/10.6084/m9.figshare.21270222.v1 
+%   Yadav, Pranay; Henson, Rik (2022): Face processing fMRI data for Dynamic Causal
+%   Modelling. figshare. Dataset. https://doi.org/10.6084/m9.figshare.21333996.v2 
 % If you are starting with this data, then skip the steps 'COMBINE' and 'VOI' since the
 % data are already concatenated across runs, & consist of extracted VOIs. After 'SETUP'
 % jump directly to 'DCM'
@@ -198,17 +198,17 @@ parfor (s = 1:nsub, numworkers)
     time_so_far = 0; volfiles = {}; movepar = [];
     
     % Specify output directory for this subject
-    outdir = fullfile(derpth,subdir{s}, 'fmri')   
+    outdir = fullfile(derpth,subdir{s}, 'func')   
     cd(outdir) 
       
     % Loop over runs
     for r = 1:length(runs)       
         
         % Get files with volumes for this run
-        volfiles{r} = spm_select('ExtFPList',fullfile(derpth,subdir{s},'fmri'),sprintf('^swsub-.*run-%s_bold\\.nii$',runs{r}),[1:nscan(r)]);
+        volfiles{r} = spm_select('ExtFPList',fullfile(derpth,subdir{s},'func'),sprintf('^swsub-.*run-%s_bold\\.nii$',runs{r}),[1:nscan(r)]);
     
         % Get files with trial info for this run
-        trlfile = fullfile(derpth,subdir{s},'fmri',sprintf('sub-%s_run-%s_spmdef.mat',subs{s},runs{r}));
+        trlfile = fullfile(derpth,subdir{s},'func',sprintf('sub-%s_run-%s_spmdef.mat',subs{s},runs{r}));
         d = load(trlfile);
         
         % Read and assign onsets to conditions struct
@@ -219,7 +219,7 @@ parfor (s = 1:nsub, numworkers)
         time_so_far = time_so_far + nscan(r)*TR;
         
         % Get files with movement info for this run
-        d = load(spm_select('FPList',fullfile(derpth,subdir{s},'fmri'),sprintf('^rp.*run-%s.*\\.txt$',runs{r})));
+        d = load(spm_select('FPList',fullfile(derpth,subdir{s},'func'),sprintf('^rp.*run-%s.*\\.txt$',runs{r})));
         d = d(1:nscan(r),:);
         
         % Append movement parameters 
@@ -289,7 +289,7 @@ rad = 10; % radius
 % Preload SPMs just so parfor can work without loading
 allSPMs = {};
 for s = 1:nsub
-    tmp = load(fullfile(derpth,subdir{s}, 'fmri', 'SPM.mat'));
+    tmp = load(fullfile(derpth,subdir{s}, 'func', 'SPM.mat'));
     allSPMs{s} = tmp.SPM;
 end
 
@@ -302,7 +302,7 @@ parfor (s = 1:nsub, numworkers) % can't parallelise with needing to load SPM
     end
     
     % Output directory for subject
-    outdir = fullfile(derpth,subdir{s}, 'fmri')
+    outdir = fullfile(derpth,subdir{s}, 'func')
     SPM = allSPMs{s};
 %     spmfile = fullfile(outdir,'SPM.mat');
 %     load(spmfile)
@@ -385,7 +385,7 @@ end
 %---------------------------------------------------------------------------------------
 
 ref_sub = 1; % eg first subject
-outdir = fullfile(derpth,subdir{ref_sub},'fmri');
+outdir = fullfile(derpth,subdir{ref_sub},'func');
 load(fullfile(outdir,'SPM.mat'));
 
 % Initialize empty DCM structure
@@ -519,7 +519,7 @@ GCM = {};
 for s = 1:nsub
     
     % Path to this subject's folder under derivatives
-    outdir = fullfile(derpth,subdir{s}, 'fmri');
+    outdir = fullfile(derpth,subdir{s}, 'func');
     
     % Iterate over models (we only have one here)
     for m = 1:length(models)

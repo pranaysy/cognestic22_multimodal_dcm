@@ -27,8 +27,8 @@
 %---------------------------------------------------------------------------------------
 
 % A. Processed DCM-ready data can be obtained from:
-%   Henson, Rik (2022): fMRI VOI data. figshare. Dataset.
-%   https://doi.org/10.6084/m9.figshare.21270222.v1 
+%   Yadav, Pranay; Henson, Rik (2022): Face processing fMRI data for Dynamic Causal
+%   Modelling. figshare. Dataset. https://doi.org/10.6084/m9.figshare.21333996.v2 
 % If you are starting with this data, then skip the steps 'COMBINE' and 'VOI' since the
 % data are already concatenated across runs, & consist of extracted VOIs. After 'SETUP'
 % jump directly to 'DCM'
@@ -100,8 +100,8 @@ addpath(genpath(srcpth)) % Add scripts & functions to workspace
 
 % Assign operational directories to variables
 derpth = fullfile(base_dir, 'data','derivatives','SPM12');
-% above will exist if you have run preprocessing scripts for Henson et al, 2019, 
-% or else download and extract data from Figshare link
+% change this to 'ds000117/data/derivatives/SPM12' if you have run preprocessing scripts
+% for Henson et al, 2019, or else download and extract data from Figshare link
 
 % All fits go in this directory
 fits_dir = fullfile(base_dir, 'fits', 'batch_script', 'fmri');
@@ -176,7 +176,7 @@ cd(derpth)
 for s = 1:nsub    
     
     % Directory specific to this subject
-    outdir = fullfile(derpth,subdir{s}, 'fmri');
+    outdir = fullfile(derpth,subdir{s}, 'func');
 
     % Prepare conditions
     for t = 1:2
@@ -245,7 +245,7 @@ parfor (s = 1:nsub, numworkers)
     jobfile = {fullfile(scrpth,'fmri', 'batch_stats_fmri_concatenated_specify_job.m')};
     
     % Output directory for this subject
-    outdir = fullfile(derpth,subdir{s}, 'fmri')
+    outdir = fullfile(derpth,subdir{s}, 'func')
     
     % Prepare inputs according to the order listed in jobfile
     inputs  = {};
@@ -312,7 +312,7 @@ parfor (s = 1:nsub, numworkers)
     end
     
     % Output directory for subject
-    outdir = fullfile(derpth,subdir{s}, 'fmri')
+    outdir = fullfile(derpth,subdir{s}, 'func')
     cd(outdir)
     
     % Path to SPM.mat file generated from previous step after concatenation
@@ -361,7 +361,7 @@ end
 % STEP 1: Data
 %---------------------------------------------------------------------------------------
 ref_sub = 1; % eg first subject
-outdir = fullfile(derpth,subdir{ref_sub}, 'fmri');
+outdir = fullfile(derpth,subdir{ref_sub}, 'func');
 load(fullfile(outdir,'SPM.mat'));
 
 % Initialize empty DCM structure
@@ -518,14 +518,14 @@ inputs{4} = ''; %{fullfile(derpth,subdir{ref_sub},'DCM_self.mat')};
 
 % Input #5: Paths to SPM.mat file for each subject
 for s = 1:nsub
-    inputs{5}{s,1} = fullfile(derpth,subdir{s},'fmri','SPM.mat');
+    inputs{5}{s,1} = fullfile(derpth,subdir{s},'func','SPM.mat');
 end
 
 % Input #6-9: Paths to VOL*.mat files for each subject
 for r = 1:numel(ROI_names)
     files = {};
     for s = 1:nsub
-        inputs{5+r}{s,1} = fullfile(derpth,subdir{s},'fmri',sprintf('VOI_%s_1.mat',ROI_names{r}));
+        inputs{5+r}{s,1} = fullfile(derpth,subdir{s},'func',sprintf('VOI_%s_1.mat',ROI_names{r}));
     end
 end
 
@@ -795,14 +795,14 @@ inputs{4} = {outfile_self};%{fullfile(outpth,subdir{ref_sub},'DCM_self.mat')};
 
 % Input #5: Paths to SPM.mat file for each subject
 for s = 1:nsub
-    inputs{5}{s,1} = fullfile(derpth,subdir{s},'fmri','SPM.mat');
+    inputs{5}{s,1} = fullfile(derpth,subdir{s},'func','SPM.mat');
 end
 
 % Input #6-9: Paths to VOL*.mat files for each subject
 for r = 1:numel(ROI_names)
     files = {};
     for s = 1:nsub
-        inputs{5+r}{s,1} = fullfile(derpth,subdir{s},'fmri',sprintf('VOI_%s_1.mat',ROI_names{r}));
+        inputs{5+r}{s,1} = fullfile(derpth,subdir{s},'func',sprintf('VOI_%s_1.mat',ROI_names{r}));
     end
 end
 

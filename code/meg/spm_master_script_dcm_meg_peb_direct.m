@@ -260,10 +260,15 @@ save(fullfile(fits_dir, 'templates', 'GCMs', 'Full', 'GCM_DCM_Full.mat'), 'GCM')
 %---------------------------------------------------------------------------------------
 
 % Initialize Parallel Compute Pool (Example Instructions for CBU Cluster)
-delete(gcp('nocreate')) % Shut down any existing pool
-n_workers = length(input_files);
-P=cbupool(n_workers, '--mem-per-cpu=4G --time=12:00:00 --nodelist=node-j10');
-parpool(P, P.NumWorkers);
+P = gcp('nocreate');
+if isempty(P)
+    n_workers = length(input_files);
+    P=cbupool(n_workers, '--mem-per-cpu=4G --time=12:00:00 --nodelist=node-j11');
+    parpool(P, P.NumWorkers);
+else
+    disp('Pool running')
+    %delete(P) % Shut down any existing pool
+end
 
 % During fitting, individual subject-level DCMs will be estimated in the working folder
 % We'll navigate to the templates GCMs folder to be consistent with the 'batch' script
