@@ -360,7 +360,7 @@ end
 %---------------------------------------------------------------------------------------
 % STEP 1: Data
 %---------------------------------------------------------------------------------------
-ref_sub = 1; % eg first subject
+ref_sub = 15; % eg subject 15
 outdir = fullfile(derpth,subdir{ref_sub}, 'func');
 load(fullfile(outdir,'SPM.mat'));
 
@@ -457,7 +457,7 @@ save(outfile_full,'DCM');
 
 % Estimate reference subject's DCM and save
 DCM = spm_dcm_estimate(DCM);
-save(fullfile(fits_dir, 'DCM_Full_sub-01.mat'),'DCM');
+save(fullfile(fits_dir, sprintf('DCM_Full_sub-%02g.mat', ref_sub)),'DCM');
 
 % Review and evaluate model fit
 spm_dcm_review(DCM);
