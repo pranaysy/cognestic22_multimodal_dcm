@@ -28,7 +28,8 @@
 
 % A. Processed DCM-ready data can be obtained from:
 %   Yadav, Pranay; Henson, Rik (2022): Face processing M/EEG data for Dynamic Causal
-%   Modelling. figshare. Dataset. https://doi.org/10.6084/m9.figshare.21130297.v2 
+%   Modelling (Faces vs Scrambled). figshare. Dataset.
+%   https://doi.org/10.6084/m9.figshare.21342066.v1 
 
 % B. Alternatively, raw data can be obtained from:
 %   Wakeman, D.G. & Henson, R.N. (2015). A multi-subject, multi-modal human neuroimaging
@@ -64,7 +65,8 @@
 clear
 
 % Add SPM12 to MATLAB Path
-addpath('/imaging/local/software/spm_cbu_svn/releases/spm12_latest/')
+SPM12PATH = '/imaging/local/software/spm_cbu_svn/releases/spm12_latest/';
+addpath(SPM12PATH)
 
 %---------------------------------------------------------------------------------------
 % STEP 2: Configure & launch SPM 
@@ -115,7 +117,7 @@ DCM.name = name;
 %---------------------------------------------------------------------------------------
 
 % Specify modality
-DCM.xY.modality = 'MEG';
+DCM.xY.modality = 'MEGPLANAR';
 
 % Set up DCM analysis type
 DCM.options.analysis = 'ERP';   % Analyze evoked responses
@@ -133,17 +135,18 @@ DCM.options.D        = 1;       % Downsampling (decimation of time series by a f
 DCM.options.multiC   = 0;       % Multiple input vectors for multiple stimuli
 DCM.options.location = 0;       % Optimize dipole locations
 DCM.options.symmetry = 1;       % Lock orientation of dipoles across hemispheres
+DCM.options.Nmax     = 512;     % Set more fitting steps, so that all subjects converge
 
 %---------------------------------------------------------------------------------------
 % STEP 2: Setup data & design
 %---------------------------------------------------------------------------------------
 
 % Specify data of interest
-DCM.options.trials   = [1 2 3]; % Index of ERPs within ERP/ERF file
+DCM.options.trials   = [1 2]; % Index of ERPs within ERP/ERF file
 DCM.options.Tdcm     = [0 500]; % Peri-stimulus time to be modelled
 
 % Specify between-condition trial effects
-contrasts = [1 1 0]'; % Face Perception: Faces (Famous + Unfamiliar) - Scrambled
+contrasts = [0 1]'; % Face Perception: Scrambled vs Faces (Famous + Unfamiliar)
 DCM.xU.X = contrasts; % Orientation is N_trials x N_contrasts
 DCM.xU.name = {'Face Perception'};
 
@@ -245,7 +248,7 @@ name_tag = 'Full';
 
 % Populate list of processed files as a column-order cell (N-files × 1)
 % These files should contain forward models (with or without gain matrices)
-files = dir(fullfile(base_dir, 'data', '**', 'maM*.mat'));
+files = dir(fullfile(base_dir, 'data', '**', 'wmaM*.mat'));
 input_files = arrayfun(@(x) fullfile(x.folder, x.name), files, 'UniformOutput', false);
 
 % Specify output directory for GCM specification
@@ -278,13 +281,16 @@ inputs{6, 1} = name_tag; % Specify / Estimate PEB: Name - cfg_entry ('PEB_' suff
 %---------------------------------------------------------------------------------------
 
 % Initialize Parallel Compute Pool (Example Instructions for CBU Cluster)
-delete(gcp('nocreate')) % Shut down any existing pool
-n_workers = length(input_files);
-P=cbupool(n_workers, '--mem-per-cpu=4G --time=12:00:00 --nodelist=node-j10');
-parpool(P, P.NumWorkers);
-
-% Run the following line to initialize pool if script is not being run at the CBU
-% parpool(n_workers); 
+P = gcp('nocreate');
+if isempty(P)
+    n_workers = length(input_files);
+    P=cbupool(n_workers, '--mem-per-cpu=4G --time=12:00:00 --nodelist=node-j11');
+    parpool(P, P.NumWorkers);
+    % parpool(n_workers); % Run this line if not at the CBU
+else
+    disp('Pool running')
+    %delete(P) % Shut down any existing pool
+end
 
 % Call jobman with the jobfile and necessary inputs
 spm_jobman('run', jobfile, inputs{:});

@@ -25,9 +25,9 @@ spm('asciiwelcome');
 %% Input arguments
 %==========================================================================
 rawpth = '/imaging/henson/Wakeman/ds000117'; % Directory containing the raw data
-outdir = '/imaging/henson/Wakeman/cognestic2022';
+outdir = '/imaging/henson/Wakeman/cognestic22_multimodal_dcm';
 scrpth = fullfile(outdir,'code');                     % Directory containing the SPM analysis scripts
-outpth = fullfile(outdir,'derivatives',spm('Ver'));   % Output directory
+outpth = fullfile(outdir, 'data', 'derivatives',spm('Ver'));   % Output directory
 
 keepdata   = false; % If false, intermediate files will be deleted to save disk space
 
@@ -35,7 +35,8 @@ keepdata   = false; % If false, intermediate files will be deleted to save disk 
 % if numworkers, parpool(numworkers); end
 
 delete(gcp('nocreate'))
-P=cbupool(16, '--mem-per-cpu=4G --time=72:00:00 --nodelist=node-j14');
+numworkers = 16;
+P=cbupool(numworkers, '--mem-per-cpu=4G --time=72:00:00 --nodelist=node-j14');
 parpool(P, P.NumWorkers);
 
 timewin    = [-100 500];
@@ -255,7 +256,8 @@ parfor (s = 1:nsub, numworkers)
     
     if ~keepdata, delete(S.D); end
     
-    % Set condition order for the source reconstruction images
+    % Set condition order 
+    D = conditions(D, [1 2 3], {'Famous',  'Unfamiliar', 'Scrambled'});
     D = condlist(D, {'Famous',  'Unfamiliar', 'Scrambled'});
     D.save;
     
@@ -267,25 +269,25 @@ parfor (s = 1:nsub, numworkers)
     S.prefix = 'm';
     D = spm_eeg_average(S);
     
+    % Set condition order 
+    D = conditions(D, [1 2 3], {'Famous',  'Unfamiliar', 'Scrambled'});
+    D = condlist(D, {'Famous',  'Unfamiliar', 'Scrambled'});
+    D.save;
+
     % Contrast conditions
     S = [];
     S.D = D;
-    S.c = [1 0 0; 0 1 0; 0 0 1; 0.5 0.5 -1; 1 -1 0];
-    S.label = {
-        'Famous'
-        'Unfamiliar'
-        'Scrambled'
-        'Faces - Scrambled'
-        'Famous - Unfamiliar'
-        }';
+    S.c = [0 0 1; 0.5 0.5 0];
+    S.label = {'Scrambled', 'Faces'}';
     S.weighted = 0;
     S.prefix = 'w';
-    spm_eeg_contrast(S);   
+    D = spm_eeg_contrast(S);   
     
+   
     %% Source analysis (create forward model)
     mrifidfile = fullfile(rawpth,subdir{s},'ses-mri','anat', ['sub-' subs{s} '_ses-mri_acq-mprage_T1w.json']);
 
-    jobfile = {fullfile(scrpth,'batch_forward_model_job.m')}; 
+    jobfile = {fullfile(scrpth, 'meg', 'batch_forward_model_job.m')}; 
     inputs = cell(3,1);
     inputs{1} = {fullfile(D)};
     inputs{2} = {spm_select('FPList',fullfile(outpth,subdir{s},'anat'),'^sub-.*_T1w\.nii$')};
