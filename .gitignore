@@ -37,3 +37,6 @@ matlab_metadata.mat
 
 # Cluster issue: can't delete git folder
 code/fmri/.fgit
+
+# Exclude dot mat files everywhere
+*.mat
