@@ -424,23 +424,26 @@ DCM.options.induced    = 0;
 % Full model
 
 DCM.a = [
-     1     1     1     0
-     1     1     0     1
-     1     0     1     1
-     0     1     1     1
+%    lOFA rOFA lFFA rFFA
+    [  1    1    1    0  ];   % lOFA
+    [  1    1    0    1  ];   % rOFA
+    [  1    0    1    1  ];   % lFFA
+    [  0    1    1    1  ];   % rFFA    
 ];
 DCM.c = [
-     1     0
-     1     0
-     0     0
-     0     0
+%     All  Faces  
+    [  1    0  ];   % lOFA
+    [  1    0  ];   % rOFA
+    [  0    0  ];   % lFFA
+    [  0    0  ];   % rFFA
 ];
 DCM.b(:,:,1) = zeros(DCM.n,DCM.n); % Corresponding to 'All'
 DCM.b(:,:,2) = [                   % Corresponding to 'Faces'
-     1     1     1     0
-     1     1     0     1
-     1     0     1     1
-     0     1     1     1
+%    lOFA rOFA lFFA rFFA
+    [  1    0    1    0  ];   % lOFA
+    [  0    1    0    1  ];   % rOFA
+    [  1    0    1    0  ];   % lFFA
+    [  0    1    0    1  ];   % rFFA    
 ];
 DCM.d        = zeros(DCM.n,DCM.n,0); % needed else crashes in estimation
 
