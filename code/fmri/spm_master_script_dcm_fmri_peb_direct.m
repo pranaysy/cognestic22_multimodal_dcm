@@ -376,7 +376,7 @@ end
 %     8888888P"   "Y8888P"  888       888
 %
 %---------------------------------------------------------------------------------------
-% Specify DCM for sub-01
+% Specify DCM for sub-15
 
 % Start from here if you have SPM.mat and VOI* files ready for each subject.
 
@@ -384,7 +384,7 @@ end
 % STEP 1: Data
 %---------------------------------------------------------------------------------------
 
-ref_sub = 15; % eg first subject
+ref_sub = 15; % eg subject 15
 outdir = fullfile(derpth,subdir{ref_sub},'func');
 load(fullfile(outdir,'SPM.mat'));
 
@@ -461,8 +461,8 @@ DCM.c = [
     [  0    0  ];   % lFFA
     [  0    0  ];   % rFFA
 ];
-DCM.b(:,:,1) = zeros(DCM.n,DCM.n);
-DCM.b(:,:,2) = [
+DCM.b(:,:,1) = zeros(DCM.n,DCM.n); % Corresponding to 'All'
+DCM.b(:,:,2) = [                   % Corresponding to 'Faces'
 %    lOFA rOFA lFFA rFFA
     [  1    0    1    0  ];   % lOFA
     [  0    1    0    1  ];   % rOFA
@@ -706,7 +706,7 @@ spm_dcm_peb_review(BMA, GCM)
 % Perform Bayesian Model Comparison (BMC) for Full vs reduced Self-only models
 
 %---------------------------------------------------------------------------------------
-% STEP 1: Bayesian Model Selection
+% STEP 1: Specify a reduced Self-only model, followed by Bayesian Model Selection
 %---------------------------------------------------------------------------------------
 
 % Load full model
@@ -718,10 +718,11 @@ DCM = DCM_Full;
 
 % Switch off between-region connections
 DCM.b(:,:,2) = [
-     1     0     0     0
-     0     1     0     0
-     0     0     1     0
-     0     0     0     1
+%    lOFA rOFA lFFA rFFA
+    [  1    0    0    0  ];   % lOFA
+    [  0    1    0    0  ];   % rOFA
+    [  0    0    1    0  ];   % lFFA
+    [  0    0    0    1  ];   % rFFA
 ];
 
 % Save reduced model as a template 
@@ -799,10 +800,10 @@ DCM = DCM_Full;
 % Switch off Backward connections in B-matrix
 DCM.b(:,:,2) =  [
 %    lOFA rOFA lFFA rFFA
-    [  1    1    0    0  ];   % lOFA
-    [  1    1    0    0  ];   % rOFA
-    [  1    0    1    1  ];   % lFFA
-    [  0    1    1    1  ];   % rFFA
+    [  1    0    0    0  ];   % lOFA
+    [  0    1    0    0  ];   % rOFA
+    [  1    0    1    0  ];   % lFFA
+    [  0    1    0    1  ];   % rFFA
 ];
 
 % Append to GCM
@@ -815,10 +816,10 @@ DCM = DCM_Full;
 % Switch off Forward connections in B-matrix
 DCM.b(:,:,2) =  [
 %    lOFA rOFA lFFA rFFA
-    [  1    1    1    0  ];   % lOFA
-    [  1    1    0    1  ];   % rOFA
-    [  0    0    1    1  ];   % lFFA
-    [  0    0    1    1  ];   % rFFA
+    [  1    0    1    0  ];   % lOFA
+    [  0    1    0    1  ];   % rOFA
+    [  0    0    1    0  ];   % lFFA
+    [  0    0    0    1  ];   % rFFA
 ];
 
 % Append to GCM
@@ -831,10 +832,10 @@ DCM = DCM_Full;
 % Switch off Forward and Backward connections in B-matrix
 DCM.b(:,:,2) =  [
 %    lOFA rOFA lFFA rFFA
-    [  1    1    0    0  ];   % lOFA
-    [  1    1    0    0  ];   % rOFA
-    [  0    0    1    1  ];   % lFFA
-    [  0    0    1    1  ];   % rFFA
+    [  1    0    0    0  ];   % lOFA
+    [  0    1    0    0  ];   % rOFA
+    [  0    0    1    0  ];   % lFFA
+    [  0    0    0    1  ];   % rFFA
 ];
 
 % Append to GCM
@@ -847,10 +848,10 @@ DCM = DCM_Full;
 % Switch off Self connections in B-matrix
 DCM.b(:,:,2) =  [
 %    lOFA rOFA lFFA rFFA
-    [  0    1    1    0  ];   % lOFA
-    [  1    0    0    1  ];   % rOFA
-    [  1    0    0    1  ];   % lFFA
-    [  0    1    1    0  ];   % rFFA
+    [  0    0    1    0  ];   % lOFA
+    [  0    0    0    1  ];   % rOFA
+    [  1    0    0    0  ];   % lFFA
+    [  0    1    0    0  ];   % rFFA
 ];
 
 % Append to GCM
@@ -863,10 +864,10 @@ DCM = DCM_Full;
 % Switch off Backward connections in B-matrix
 DCM.b(:,:,2) =  [
 %    lOFA rOFA lFFA rFFA
-    [  0    1    0    0  ];   % lOFA
-    [  1    0    0    0  ];   % rOFA
-    [  1    0    0    1  ];   % lFFA
-    [  0    1    1    0  ];   % rFFA
+    [  0    0    0    0  ];   % lOFA
+    [  0    0    0    0  ];   % rOFA
+    [  1    0    0    0  ];   % lFFA
+    [  0    1    0    0  ];   % rFFA
 ];
 
 % Append to GCM
@@ -879,10 +880,10 @@ DCM = DCM_Full;
 % Switch off Forward and Self connections in B-matrix
 DCM.b(:,:,2) =  [
 %    lOFA rOFA lFFA rFFA
-    [  0    1    1    0  ];   % lOFA
-    [  1    0    0    1  ];   % rOFA
-    [  0    0    0    1  ];   % lFFA
-    [  0    0    1    0  ];   % rFFA
+    [  0    0    1    0  ];   % lOFA
+    [  0    0    0    1  ];   % rOFA
+    [  0    0    0    0  ];   % lFFA
+    [  0    0    0    0  ];   % rFFA
 ];
 
 % Append to GCM
@@ -895,10 +896,10 @@ DCM = DCM_Full;
 % Switch off Forward, Backward & Self connections in B-matrix
 DCM.b(:,:,2) =  [
 %    lOFA rOFA lFFA rFFA
-    [  0    1    0    0  ];   % lOFA
-    [  1    0    0    0  ];   % rOFA
-    [  0    0    0    1  ];   % lFFA
-    [  0    0    1    0  ];   % rFFA
+    [  0    0    0    0  ];   % lOFA
+    [  0    0    0    0  ];   % rOFA
+    [  0    0    0    0  ];   % lFFA
+    [  0    0    0    0  ];   % rFFA
 ];
 
 % Append to GCM
@@ -912,7 +913,7 @@ save(gcm_families_file, 'GCM')
 figure;
 for k=1:8
     subplot(2,4,k);
-    imagesc(GCM{1, k}.b(:,:,2) + 0.75*fliplr(eye(length(ROI_names))));
+    imagesc(GCM{1, k}.b(:,:,2) + 0.75*~DCM_Full.b(:,:,2));
     colormap(gray)
     caxis([0, 1])
     title(sprintf('Model %02d', k))
@@ -1092,10 +1093,10 @@ spm_dcm_peb_review(PEB, GCM)
 % cols = [1:2]; 
 % betas = []; dcm_betas = []; pvar = [];
 % for s = 1:nsub
-%     outdir = fullfile(derpth,subdir{s}, 'fmri', 'stat_concat')
+%     outdir = fullfile(derpth,subdir{s}, 'func')
 %     for r = 1:numel(ROI_names)        
 %         %% Get GLM betas 
-%         load(fullfile(outdir,'SPM.mat'));      
+%         load(fullfile(outdir, 'SPM.mat'));      
 %         VOI =  load(fullfile(outdir,sprintf('VOI_%s_1.mat',ROI_names{r})),'Y');
 %         tmp = pinv(SPM.xX.xKXs.X)*VOI.Y;
 %         betas(s,r,:) = tmp(cols);

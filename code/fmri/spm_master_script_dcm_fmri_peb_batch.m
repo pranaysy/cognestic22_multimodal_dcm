@@ -353,7 +353,7 @@ end
 %     8888888P"   "Y8888P"  888       888
 %
 %---------------------------------------------------------------------------------------
-% Specify DCM for sub-01
+% Specify DCM for sub-15
 
 % Start from here if you have SPM.mat and VOI* files ready for each subject.
 
@@ -498,7 +498,7 @@ templatedir = fullfile(fits_dir, 'templates', 'GCMs', GCMname);
 % Note: innermost folder name is same as GCM file name
 
 % Path to job file for executing this operation
-jobfile = {fullfile(scrpth,'fmri', 'batch_dcm_create_gcm_job.m')}; 
+jobfile = {fullfile(srcpth,'fmri', 'batch_dcm_create_gcm_job.m')}; 
 
 %---------------------------------------------------------------------------------------
 % STEP 2: Specify inputs
@@ -564,7 +564,7 @@ spm_jobman('run', jobfile, inputs{:});
 %---------------------------------------------------------------------------------------
 
 % Path to job file for executing this operation
-jobfile = {fullfile(scrpth,'fmri','batch_dcm_fit_gcm_job.m')}; 
+jobfile = {fullfile(srcpth,'fmri','batch_dcm_fit_gcm_job.m')}; 
 
 % Path to GCM template specified in previous step
 GCMfile = fullfile(templatedir, ['GCM_' name_tag '.mat']);
@@ -635,7 +635,7 @@ spm_dcm_fmri_check(GCM);
 GCMfile = fullfile(fits_dir,['GCM_' name_tag '.mat']);
 
 % Path to job file for executing this operation
-jobfile = {fullfile(scrpth,'fmri','batch_dcm_fit_peb_job.m')}; 
+jobfile = {fullfile(srcpth,'fmri','batch_dcm_fit_peb_job.m')}; 
 
 %---------------------------------------------------------------------------------------
 % STEP 2: Specify inputs
@@ -699,7 +699,7 @@ GCMfile = fullfile(fits_dir,['GCM_' name_tag '.mat']);
 PEBfile = fullfile(fits_dir,['PEB_' name_tag '.mat']);
 
 % Path to job file for executing this operation
-jobfile = {fullfile(scrpth,'fmri', 'batch_dcm_peb_bmr_search_job.m')}; 
+jobfile = {fullfile(srcpth,'fmri', 'batch_dcm_peb_bmr_search_job.m')}; 
 
 %---------------------------------------------------------------------------------------
 % STEP 2: Specify inputs
@@ -753,10 +753,11 @@ load(outfile_full)
 
 % Switch off between-region connections
 DCM.b(:,:,2) = [
-     1     0     0     0
-     0     1     0     0
-     0     0     1     0
-     0     0     0     1
+%    lOFA rOFA lFFA rFFA
+    [  1    0    0    0  ];   % lOFA
+    [  0    1    0    0  ];   % rOFA
+    [  0    0    1    0  ];   % lFFA
+    [  0    0    0    1  ];   % rFFA
 ];
 
 % Save reduced model as a template 
@@ -775,7 +776,7 @@ templatedir = fullfile(fits_dir, 'templates', 'GCMs', GCMname);
 % Note: innermost folder name is same as GCM file name
 
 % Path to job file for executing this operation
-jobfile = {fullfile(scrpth,'fmri','batch_dcm_create_gcm_job.m')}; 
+jobfile = {fullfile(srcpth,'fmri','batch_dcm_create_gcm_job.m')}; 
 
 %---------------------------------------------------------------------------------------
 % STEP 3: Specify inputs
@@ -819,7 +820,7 @@ spm_jobman('run', jobfile, inputs{:});
 %---------------------------------------------------------------------------------------
 
 % Path to job file
-jobfile = {fullfile(scrpth,'fmri','batch_dcm_peb_bmc_job.m')}; 
+jobfile = {fullfile(srcpth,'fmri','batch_dcm_peb_bmc_job.m')}; 
 
 % Prepare inputs, 2 total, as per order listed in the job file
 inputs  = {};
@@ -894,10 +895,10 @@ DCM = DCM_Full;
 % Switch off Backward connections in B-matrix
 DCM.b(:,:,2) =  [
 %    lOFA rOFA lFFA rFFA
-    [  1    1    0    0  ];   % lOFA
-    [  1    1    0    0  ];   % rOFA
-    [  1    0    1    1  ];   % lFFA
-    [  0    1    1    1  ];   % rFFA
+    [  1    0    0    0  ];   % lOFA
+    [  0    1    0    0  ];   % rOFA
+    [  1    0    1    0  ];   % lFFA
+    [  0    1    0    1  ];   % rFFA
 ];
 
 % Append to GCM
@@ -910,10 +911,10 @@ DCM = DCM_Full;
 % Switch off Forward connections in B-matrix
 DCM.b(:,:,2) =  [
 %    lOFA rOFA lFFA rFFA
-    [  1    1    1    0  ];   % lOFA
-    [  1    1    0    1  ];   % rOFA
-    [  0    0    1    1  ];   % lFFA
-    [  0    0    1    1  ];   % rFFA
+    [  1    0    1    0  ];   % lOFA
+    [  0    1    0    1  ];   % rOFA
+    [  0    0    1    0  ];   % lFFA
+    [  0    0    0    1  ];   % rFFA
 ];
 
 % Append to GCM
@@ -926,10 +927,10 @@ DCM = DCM_Full;
 % Switch off Forward and Backward connections in B-matrix
 DCM.b(:,:,2) =  [
 %    lOFA rOFA lFFA rFFA
-    [  1    1    0    0  ];   % lOFA
-    [  1    1    0    0  ];   % rOFA
-    [  0    0    1    1  ];   % lFFA
-    [  0    0    1    1  ];   % rFFA
+    [  1    0    0    0  ];   % lOFA
+    [  0    1    0    0  ];   % rOFA
+    [  0    0    1    0  ];   % lFFA
+    [  0    0    0    1  ];   % rFFA
 ];
 
 % Append to GCM
@@ -942,10 +943,10 @@ DCM = DCM_Full;
 % Switch off Self connections in B-matrix
 DCM.b(:,:,2) =  [
 %    lOFA rOFA lFFA rFFA
-    [  0    1    1    0  ];   % lOFA
-    [  1    0    0    1  ];   % rOFA
-    [  1    0    0    1  ];   % lFFA
-    [  0    1    1    0  ];   % rFFA
+    [  0    0    1    0  ];   % lOFA
+    [  0    0    0    1  ];   % rOFA
+    [  1    0    0    0  ];   % lFFA
+    [  0    1    0    0  ];   % rFFA
 ];
 
 % Append to GCM
@@ -958,10 +959,10 @@ DCM = DCM_Full;
 % Switch off Backward connections in B-matrix
 DCM.b(:,:,2) =  [
 %    lOFA rOFA lFFA rFFA
-    [  0    1    0    0  ];   % lOFA
-    [  1    0    0    0  ];   % rOFA
-    [  1    0    0    1  ];   % lFFA
-    [  0    1    1    0  ];   % rFFA
+    [  0    0    0    0  ];   % lOFA
+    [  0    0    0    0  ];   % rOFA
+    [  1    0    0    0  ];   % lFFA
+    [  0    1    0    0  ];   % rFFA
 ];
 
 % Append to GCM
@@ -974,10 +975,10 @@ DCM = DCM_Full;
 % Switch off Forward and Self connections in B-matrix
 DCM.b(:,:,2) =  [
 %    lOFA rOFA lFFA rFFA
-    [  0    1    1    0  ];   % lOFA
-    [  1    0    0    1  ];   % rOFA
-    [  0    0    0    1  ];   % lFFA
-    [  0    0    1    0  ];   % rFFA
+    [  0    0    1    0  ];   % lOFA
+    [  0    0    0    1  ];   % rOFA
+    [  0    0    0    0  ];   % lFFA
+    [  0    0    0    0  ];   % rFFA
 ];
 
 % Append to GCM
@@ -990,10 +991,10 @@ DCM = DCM_Full;
 % Switch off Forward, Backward & Self connections in B-matrix
 DCM.b(:,:,2) =  [
 %    lOFA rOFA lFFA rFFA
-    [  0    1    0    0  ];   % lOFA
-    [  1    0    0    0  ];   % rOFA
-    [  0    0    0    1  ];   % lFFA
-    [  0    0    1    0  ];   % rFFA
+    [  0    0    0    0  ];   % lOFA
+    [  0    0    0    0  ];   % rOFA
+    [  0    0    0    0  ];   % lFFA
+    [  0    0    0    0  ];   % rFFA
 ];
 
 % Append to GCM
@@ -1007,7 +1008,7 @@ save(gcm_families_file, 'GCM')
 figure;
 for k=1:8
     subplot(2,4,k);
-    imagesc(GCM{1, k}.b(:,:,2) + 0.75*fliplr(eye(length(ROI_names))));
+    imagesc(GCM{1, k}.b(:,:,2) + 0.75*~DCM_Full.b(:,:,2));
     colormap(gray)
     caxis([0, 1])
     title(sprintf('Model %02d', k))
@@ -1117,7 +1118,7 @@ save(outfile, 'BMAf', 'fam')
 %      "Y8888P"   "Y88P"    Y88P   "Y888888 888     888 "Y888888  "Y888 "Y8888   88888P'
 %
 %---------------------------------------------------------------------------------------
-% We demonstrate here the inclusion of covariates for 2nd-level/group inference with PEB.
+% We demonstrate the inclusion of covariates for 2nd-level (group) inference with PEB.
 % The dataset includes ages of participants, and while we do not anticipate any effect
 % of age on modulation of connections due to faces, we illustrate specification of age
 % as a covariate in the PEB design matrix for inference.
@@ -1188,10 +1189,10 @@ spm_jobman('run', jobfile, inputs{:});
 % cols = [1:2]; 
 % betas = []; dcm_betas = []; pvar = [];
 % for s = 1:nsub
-%     outdir = fullfile(outpth,subdir{s})
+%     outdir = fullfile(derpth,subdir{s}, 'func')
 %     for r = 1:numel(ROI_names)        
 %         %% Get GLM betas 
-%         load(fullfile(outdir, 'fmri', 'SPM.mat'));      
+%         load(fullfile(outdir, 'SPM.mat'));      
 %         VOI =  load(fullfile(outdir,sprintf('VOI_%s_1.mat',ROI_names{r})),'Y');
 %         tmp = pinv(SPM.xX.xKXs.X)*VOI.Y;
 %         betas(s,r,:) = tmp(cols);
