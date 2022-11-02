@@ -464,10 +464,10 @@ DCM.c = [
 DCM.b(:,:,1) = zeros(DCM.n,DCM.n);
 DCM.b(:,:,2) = [
 %    lOFA rOFA lFFA rFFA
-    [  1    1    1    0  ];   % lOFA
-    [  1    1    0    1  ];   % rOFA
-    [  1    0    1    1  ];   % lFFA
-    [  0    1    1    1  ];   % rFFA    
+    [  1    0    1    0  ];   % lOFA
+    [  0    1    0    1  ];   % rOFA
+    [  1    0    1    0  ];   % lFFA
+    [  0    1    0    1  ];   % rFFA    
 ];
 DCM.d        = zeros(DCM.n,DCM.n,0); % needed else crashes in estimation
 
