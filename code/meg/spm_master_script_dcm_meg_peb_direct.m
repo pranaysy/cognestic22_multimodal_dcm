@@ -242,7 +242,7 @@ GCM = {};
 for f=1:length(input_files)    
     GCM{f, 1} = DCM_Full; % Full model
     GCM{f, 1}.xY.Dfile = input_files{f}; % Add path to subject f's data file
-    GCM{f, 1}.name = sprintf('%s_sub-%02d', name, f) % Add subject identifier
+    GCM{f, 1}.name = sprintf('%s_sub-%02d', name, f); % Add subject identifier
 end   
 
 % Save GCM specification
@@ -553,7 +553,7 @@ save(gcm_families_file, 'GCM')
 figure;
 for k=1:8
     subplot(2,4,k);
-    imagesc(GCM{1, k}.B{1} + 0.75*fliplr(eye(Nareas)));
+    imagesc(GCM{1, k}.B{1} + 0.75*~GCM{1, 1}.B{1});
     colormap(gray)
     caxis([0, 1])
     title(sprintf('Model %02d', k))

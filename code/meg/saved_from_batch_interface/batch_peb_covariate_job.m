@@ -1,10 +1,10 @@
 %-----------------------------------------------------------------------
-% Job saved on 19-Sep-2022 13:50:41 by cfg_util (rev $Rev: 7345 $)
+% Job saved on 10-Nov-2022 18:57:13 by cfg_util (rev $Rev: 7345 $)
 % spm SPM - SPM12 (7771)
 % cfg_basicio BasicIO - Unknown
 %-----------------------------------------------------------------------
 matlabbatch{1}.spm.dcm.peb.specify.name = 'Age';
-matlabbatch{1}.spm.dcm.peb.specify.model_space_mat = {'/imaging/henson/Wakeman/cognestic2022_dcm_meeg/fits/batch_gui/GCM_Full.mat'};
+matlabbatch{1}.spm.dcm.peb.specify.model_space_mat = {'/imaging/henson/Wakeman/cognestic22_multimodal_dcm/fits/batch_gui/meg/GCM_Full.mat'};
 matlabbatch{1}.spm.dcm.peb.specify.dcm.index = 1;
 matlabbatch{1}.spm.dcm.peb.specify.cov.regressor.name = 'Age';
 %%
