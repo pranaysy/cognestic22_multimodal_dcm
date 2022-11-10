@@ -122,7 +122,7 @@ DCM.xY.modality = 'MEGPLANAR';
 % Set up DCM analysis type
 DCM.options.analysis = 'ERP';   % Analyze evoked responses
 DCM.options.model    = 'ERP';   % Neuronal temporal model: Extended Jansen-Rit model
-DCM.options.spatial  = 'ECD';   % Spatial observation model: ECD
+DCM.options.spatial  = 'IMG';   % Spatial observation model: IMG (IMG or ECD)
 
 % Set up preprocessing parameters and analysis options
 DCM.options.Nmodes   = 8;       % Number of modes of Leadfield for data selection
@@ -136,6 +136,9 @@ DCM.options.multiC   = 0;       % Multiple input vectors for multiple stimuli
 DCM.options.location = 0;       % Optimize dipole locations
 DCM.options.symmetry = 1;       % Lock orientation of dipoles across hemispheres
 DCM.options.Nmax     = 512;     % Set more fitting steps, so that all subjects converge
+
+% Options specific to IMG spatial observation model
+DCM.M.dipfit.Nm      = 2;       % Two modes across vertices within each source ROI
 
 %---------------------------------------------------------------------------------------
 % STEP 2: Setup data & design
@@ -200,7 +203,7 @@ DCM.A{3} = [
 
 % B Matrix: Modulation of connections
 self_connections = eye(Nareas);
-DCM.B{1} = double(DCM.A{1} | DCM.A{2} | DCM.A{3} | self_connections);
+DCM.B{1} = double(DCM.A{1} | DCM.A{2} | self_connections); % Forward + Backward + Self
 
 % C Matrix: Driving inputs
 DCM.C = [1 1 0 0]';
@@ -436,10 +439,10 @@ DCM = DCM_Full;
 % Switch off Backward connections in B-matrix
 DCM.B{1} =  [
 %    lOFA rOFA lFFA rFFA
-    [  1    1    0    0  ];   % lOFA
-    [  1    1    0    0  ];   % rOFA
-    [  1    0    1    1  ];   % lFFA
-    [  0    1    1    1  ];   % rFFA
+    [  1    0    0    0  ];   % lOFA
+    [  0    1    0    0  ];   % rOFA
+    [  1    0    1    0  ];   % lFFA
+    [  0    1    0    1  ];   % rFFA
 ];
 
 % Append to GCM
@@ -452,10 +455,10 @@ DCM = DCM_Full;
 % Switch off Forward connections in B-matrix
 DCM.B{1} =  [
 %    lOFA rOFA lFFA rFFA
-    [  1    1    1    0  ];   % lOFA
-    [  1    1    0    1  ];   % rOFA
-    [  0    0    1    1  ];   % lFFA
-    [  0    0    1    1  ];   % rFFA
+    [  1    0    1    0  ];   % lOFA
+    [  0    1    0    1  ];   % rOFA
+    [  0    0    1    0  ];   % lFFA
+    [  0    0    0    1  ];   % rFFA
 ];
 
 % Append to GCM
@@ -468,10 +471,10 @@ DCM = DCM_Full;
 % Switch off Forward and Backward connections in B-matrix
 DCM.B{1} =  [
 %    lOFA rOFA lFFA rFFA
-    [  1    1    0    0  ];   % lOFA
-    [  1    1    0    0  ];   % rOFA
-    [  0    0    1    1  ];   % lFFA
-    [  0    0    1    1  ];   % rFFA
+    [  1    0    0    0  ];   % lOFA
+    [  0    1    0    0  ];   % rOFA
+    [  0    0    1    0  ];   % lFFA
+    [  0    0    0    1  ];   % rFFA
 ];
 
 % Append to GCM
@@ -484,10 +487,10 @@ DCM = DCM_Full;
 % Switch off Self connections in B-matrix
 DCM.B{1} =  [
 %    lOFA rOFA lFFA rFFA
-    [  0    1    1    0  ];   % lOFA
-    [  1    0    0    1  ];   % rOFA
-    [  1    0    0    1  ];   % lFFA
-    [  0    1    1    0  ];   % rFFA
+    [  0    0    1    0  ];   % lOFA
+    [  0    0    0    1  ];   % rOFA
+    [  1    0    0    0  ];   % lFFA
+    [  0    1    0    0  ];   % rFFA
 ];
 
 % Append to GCM
@@ -500,10 +503,10 @@ DCM = DCM_Full;
 % Switch off Backward connections in B-matrix
 DCM.B{1} =  [
 %    lOFA rOFA lFFA rFFA
-    [  0    1    0    0  ];   % lOFA
-    [  1    0    0    0  ];   % rOFA
-    [  1    0    0    1  ];   % lFFA
-    [  0    1    1    0  ];   % rFFA
+    [  0    0    0    0  ];   % lOFA
+    [  0    0    0    0  ];   % rOFA
+    [  1    0    0    0  ];   % lFFA
+    [  0    1    0    0  ];   % rFFA
 ];
 
 % Append to GCM
@@ -518,8 +521,8 @@ DCM.B{1} =  [
 %    lOFA rOFA lFFA rFFA
     [  0    1    1    0  ];   % lOFA
     [  1    0    0    1  ];   % rOFA
-    [  0    0    0    1  ];   % lFFA
-    [  0    0    1    0  ];   % rFFA
+    [  0    0    0    0  ];   % lFFA
+    [  0    0    0    0  ];   % rFFA
 ];
 
 % Append to GCM
@@ -532,10 +535,10 @@ DCM = DCM_Full;
 % Switch off Forward, Backward & Self connections in B-matrix
 DCM.B{1} =  [
 %    lOFA rOFA lFFA rFFA
-    [  0    1    0    0  ];   % lOFA
-    [  1    0    0    0  ];   % rOFA
-    [  0    0    0    1  ];   % lFFA
-    [  0    0    1    0  ];   % rFFA
+    [  0    0    0    0  ];   % lOFA
+    [  0    0    0    0  ];   % rOFA
+    [  0    0    0    0  ];   % lFFA
+    [  0    0    0    0  ];   % rFFA
 ];
 
 % Append to GCM
