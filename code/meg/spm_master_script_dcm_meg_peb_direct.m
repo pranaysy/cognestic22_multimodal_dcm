@@ -138,7 +138,8 @@ DCM.options.symmetry = 1;       % Lock orientation of dipoles across hemispheres
 DCM.options.Nmax     = 512;     % Set more fitting steps, so that all subjects converge
 
 % Options specific to IMG spatial observation model: Hardcoded in spm_dcm_erp_dipfit.m
-%DCM.M.dipfit.Nm      = 2;       % Two modes across vertices within each source ROI
+% DCM.M.dipfit.rad     = 10;    % Radius of sphere centered at each source ROI
+% DCM.M.dipfit.Nm      = 2;     % Two modes across vertices within each source ROI
 
 %---------------------------------------------------------------------------------------
 % STEP 2: Setup data & design

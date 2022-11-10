@@ -173,7 +173,7 @@ switch DCM.options.spatial
  
         % defaults: Nm = 6; number of modes per region
         %------------------------------------------------------------------
-        try, rad  = DCM.M.dipfit.radius; catch, rad  = 16;    end
+        try, rad  = DCM.M.dipfit.radius; catch, rad  = 10;    end
         try, Nm   = DCM.M.dipfit.Nm;     catch, Nm   = 2;     end
         
  
