@@ -602,7 +602,7 @@ save(outfile, 'BMAf', 'fam')
 % Family 2: Models 3, 4, 7, 8 have no forward connection
 families = [1, 1, 2, 2, 1, 1, 2, 2];
 [BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
-% Family 2 has greater evidence (~0.8)
+% Family 2 has greater evidence (~0.6)
 
 % Save this family-wise comparison
 outfile = fullfile(fits_dir, 'BMC_Families_BetweenRegion_Forward.mat');
@@ -630,7 +630,7 @@ save(outfile, 'BMAf', 'fam')
 % Family 2: Models 5, 6, 7, 8 have no self connection
 families = [1, 1, 1, 1, 2, 2, 2, 2];
 [BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
-% Family 2 has moderately greater evidence (~0.6)
+% Family 2 has moderately greater evidence (~0.85)
 
 % Save this family-wise comparison
 outfile = fullfile(fits_dir, 'BMC_Families_Self.mat');
