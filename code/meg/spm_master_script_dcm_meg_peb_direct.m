@@ -85,7 +85,7 @@ spm eeg
 %---------------------------------------------------------------------------------------
 
 % Specify root working directory 
-base_dir = '/imaging/henson/Wakeman/cognestic22_multimodal_dcm'; % Change this to yours
+base_dir = '/imaging/henson/Wakeman/pranay_does_things/CBU_Neuroimaging_2024_Test_Reset'; % Change this to yours
 addpath(genpath(fullfile(base_dir, 'code'))) % Add scripts & functions to workspace
 
 % All fits go in this directory
@@ -160,8 +160,7 @@ DCM.xU.name = {'Face Perception'};
 
 % Location priors for dipoles
 locs  = {
-    [  0, -90,   0], 'bEVC';
-        
+    [  0, -90,   0], 'bEVC';     
     [-42, -56, -20], 'lFFA';
     [+42, -52, -14], 'rFFA';   
 };
