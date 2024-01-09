@@ -40,3 +40,6 @@ code/fmri/.fgit
 
 # Exclude dot mat files everywhere
 *.mat
+
+# Ignore ./data folder
+data/
