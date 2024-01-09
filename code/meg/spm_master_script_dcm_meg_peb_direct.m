@@ -122,7 +122,7 @@ DCM.xY.modality = 'MEGPLANAR';
 % Set up DCM analysis type
 DCM.options.analysis = 'ERP';   % Analyze evoked responses
 DCM.options.model    = 'ERP';   % Neuronal temporal model: Extended Jansen-Rit model
-DCM.options.spatial  = 'IMG';   % Spatial observation model: IMG (IMG or ECD)
+DCM.options.spatial  = 'ECD';   % Spatial observation model: IMG (IMG or ECD)
 
 % Set up preprocessing parameters and analysis options
 DCM.options.Nmodes   = 8;       % Number of modes of Leadfield for data selection
@@ -147,7 +147,7 @@ DCM.options.Nmax     = 512;     % Set more fitting steps, so that all subjects c
 
 % Specify data of interest
 DCM.options.trials   = [1 2]; % Index of ERPs within ERP/ERF file
-DCM.options.Tdcm     = [0 500]; % Peri-stimulus time to be modelled
+DCM.options.Tdcm     = [0 400]; % Peri-stimulus time to be modelled
 
 % Specify between-condition trial effects
 contrasts = [0 1]'; % Face Perception: Scrambled vs Faces (Famous + Unfamiliar)
@@ -160,8 +160,7 @@ DCM.xU.name = {'Face Perception'};
 
 % Location priors for dipoles
 locs  = {
-    [-38, -86, -14], 'lOFA';
-    [+36, -86, -10], 'rOFA';
+    [  0, -90,   0], 'bEVC';
         
     [-42, -56, -20], 'lFFA';
     [+42, -52, -14], 'rFFA';   
@@ -177,37 +176,34 @@ Nareas    = length(locs);
 
 % A Matrix: Forward connections
 DCM.A{1} = [
-%    lOFA rOFA lFFA rFFA
-    [  0    0    0    0  ];   % lOFA
-    [  0    0    0    0  ];   % rOFA
-    [  1    0    0    0  ];   % lFFA
-    [  0    1    0    0  ];   % rFFA    
+%     bVC lFFA rFFA
+    [  0    0    0  ];   % bVC
+    [  1    0    0  ];   % lFFA
+    [  1    0    0  ];   % rFFA    
 ];
 
 % A Matrix: Backward connections
 DCM.A{2} = [
-%    lOFA rOFA lFFA rFFA
-    [  0    0    1    0  ];   % lOFA
-    [  0    0    0    1  ];   % rOFA
-    [  0    0    0    0  ];   % lFFA
-    [  0    0    0    0  ];   % rFFA
+%     bVC lFFA rFFA
+    [  0    1    1  ];   % bVC
+    [  0    0    0  ];   % lFFA
+    [  0    0    0  ];   % rFFA    
 ];
 
 % A Matrix: Lateral connections
 DCM.A{3} = [
-%    lOFA rOFA lFFA rFFA
-    [  0    1    0    0  ];   % lOFA
-    [  1    0    0    0  ];   % rOFA
-    [  0    0    0    1  ];   % lFFA
-    [  0    0    1    0  ];   % rFFA
+%     bVC lFFA rFFA
+    [  0    0    0  ];   % bVC
+    [  0    0    1  ];   % lFFA
+    [  0    1    0  ];   % rFFA    
 ];
 
 % B Matrix: Modulation of connections
 self_connections = eye(Nareas);
-DCM.B{1} = double(DCM.A{1} | DCM.A{2} | self_connections); % Forward + Backward + Self
+DCM.B{1} = double(DCM.A{1} | DCM.A{2} | DCM.A{3} | self_connections); % Forward + Backward + Lateral + Self
 
 % C Matrix: Driving inputs
-DCM.C = [1 1 0 0]';
+DCM.C = [1 0 0]';
 
 % Save full model as a template
 dcm_full_file = fullfile(fits_dir, 'templates', 'DCMs', strcat(DCM.name, '.mat'));
