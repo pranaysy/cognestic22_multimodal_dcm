@@ -426,12 +426,13 @@ if isfield(DCM_Full, 'M')
 end
 
 family = full(spm_perm_mtx(4));
+i_f = 1; i_b = 2; i_l = 3; i_s = 4;
 n_models = size(family, 1);
 GCM = cell(1, n_models);
 for n=1:n_models
     
     sw = family(n, :);
-    f = sw(1); b = sw(2); l = sw(3); s = sw(4);
+    f = sw(i_f); b = sw(i_b); l = sw(i_l); s = sw(i_s);
     
     DCM = DCM_Full;               
     DCM.B{1} = [
@@ -486,8 +487,17 @@ save(outfile, 'BMA', 'BMR')
 % Are any between-region connections modulated regardless of self-connections?
 % Family 1: Models 1, 2, 3 & 5, 6, 7 have at least one forward or backward connection
 % Family 2: Models 4 and 8 have no F/B connections
-families = [1, 1, 1, 2, 1, 1, 1, 2];
-[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
+families = 1 + family(:, i_f); % Family 2 with Forward; Family 1 without
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); fam.family.post(2)
+
+families = 1 + family(:, i_b); % Family 2 with Backard; Family 1 without
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); fam.family.post(2)
+
+families = 1 + family(:, i_l); % Family 2 with Lateral; Family 1 without
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); fam.family.post(2)
+
+families = 1 + family(:, i_s); % Family 2 with Self; Family 1 without
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); fam.family.post(2)
 % Family 1 has overwhelming evidence (~1) -> between-region connections are modulated
 
 % Save this family-wise comparison
