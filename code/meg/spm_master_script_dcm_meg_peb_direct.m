@@ -425,130 +425,35 @@ if isfield(DCM_Full, 'M')
     DCM_Full = rmfield(DCM_Full, 'M');
 end
 
-% 1. Model F+B+S (= Full model)
-GCM{1, 1} = DCM_Full;
-
-% 2. Model F+S (= No-backward, with Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Backward connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  1    0    0    0  ];   % lOFA
-    [  0    1    0    0  ];   % rOFA
-    [  1    0    1    0  ];   % lFFA
-    [  0    1    0    1  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 2} = DCM;
-
-% 3. Model B+S (= No-forward, with Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Forward connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  1    0    1    0  ];   % lOFA
-    [  0    1    0    1  ];   % rOFA
-    [  0    0    1    0  ];   % lFFA
-    [  0    0    0    1  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 3} = DCM;
-
-% 4. Model S (= Neither forward nor backward, only Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Forward and Backward connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  1    0    0    0  ];   % lOFA
-    [  0    1    0    0  ];   % rOFA
-    [  0    0    1    0  ];   % lFFA
-    [  0    0    0    1  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 4} = DCM;
-
-% 5. Model F+B (= Both forward and backward, without Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Self connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  0    0    1    0  ];   % lOFA
-    [  0    0    0    1  ];   % rOFA
-    [  1    0    0    0  ];   % lFFA
-    [  0    1    0    0  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 5} = DCM;
-
-% 6. Model F (= No-backward, without Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Backward connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  0    0    0    0  ];   % lOFA
-    [  0    0    0    0  ];   % rOFA
-    [  1    0    0    0  ];   % lFFA
-    [  0    1    0    0  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 6} = DCM;
-
-% 7. Model B (= No-forward, without Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Forward and Self connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  0    1    1    0  ];   % lOFA
-    [  1    0    0    1  ];   % rOFA
-    [  0    0    0    0  ];   % lFFA
-    [  0    0    0    0  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 7} = DCM;
-
-% 8. Model with no F/B/S (= Null model)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Forward, Backward & Self connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  0    0    0    0  ];   % lOFA
-    [  0    0    0    0  ];   % rOFA
-    [  0    0    0    0  ];   % lFFA
-    [  0    0    0    0  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 8} = DCM;
+family = full(spm_perm_mtx(4));
+n_models = size(family, 1);
+GCM = cell(1, n_models);
+for n=1:n_models
+    
+    sw = family(n, :);
+    f = sw(1); b = sw(2); l = sw(3); s = sw(4);
+    
+    DCM = DCM_Full;               
+    DCM.B{1} = [
+        % bEVC lFFA rFFA
+        [  s    b    b ];   % bEVC
+        [  f    s    l ];   % lFFA
+        [  f    l    s ];   % rFFA
+        ];
+    GCM{1, n} = DCM; 
+end
 
 % Save model space
-gcm_families_file = fullfile(fits_dir, 'templates', 'GCMs', 'Families', 'GCM_ModelSpace8.mat');
+gcm_families_file = fullfile(fits_dir, 'templates', 'GCMs', 'Families', 'GCM_ModelSpace.mat');
 save(gcm_families_file, 'GCM')
 
 % Visualize model space
 figure;
-for k=1:8
-    subplot(2,4,k);
-    imagesc(GCM{1, k}.B{1} + 0.75*~GCM{1, 1}.B{1});
+for k=1:n_models
+    subplot(4,4,k);
+    imagesc(GCM{1, k}.B{1} + 0.5*GCM{1, 1}.B{1});
+    xticklabels(DCM_Full.Sname);
+    yticklabels(DCM_Full.Sname);
     colormap(gray)
     caxis([0, 1])
     title(sprintf('Model %02d', k))
