@@ -92,7 +92,7 @@ spm fmri
 %---------------------------------------------------------------------------------------
 
 % Specify root working directory 
-base_dir = '/imaging/henson/Wakeman/cognestic22_multimodal_dcm'; % Change this to yours
+base_dir = '/imaging/henson/Wakeman/pranay_does_things/CBU_Neuroimaging_2024_Test_Reset'; % Change this to yours
 
 % Sub-directory containing scripts
 srcpth = fullfile(base_dir,'code');
