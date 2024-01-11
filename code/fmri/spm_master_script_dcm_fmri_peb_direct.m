@@ -116,7 +116,8 @@ fits_dir = fullfile(base_dir, 'fits', 'direct_script', 'fmri');
 % runs = spm_BIDS(BIDS,'runs', 'modality','func', 'type','bold', 'task','facerecognition'); 
 
 % ...else just re-specify
-subs = compose('%02g', [1:9, 11:16]); % subject 10 had fewer scans in last run
+subs = compose('%02g', [1:16]); % subject 10 had fewer scans in last run
+%subs = compose('%02g', [1:9, 11:16]); % subject 10 had fewer scans in last run
 nsub   = numel(subs);
 subdir = cellfun(@(s) ['sub-' s], subs, 'UniformOutput',false);
 runs = compose('%02g', 1:9);
@@ -131,6 +132,8 @@ nrun = numel(runs);
 %nsub   = numel(subs);
 
 nscan = repmat(208,1,nrun); % sub-15, run-01 has 209 scans, so ignore last
+nscan = repmat(nscan,nsub,1);
+nscan(10,9) = 170; % subject 10 had fewer scans in last run
 TR = 2;
 
 %---------------------------------------------------------------------------------------
@@ -141,7 +144,7 @@ numworkers = nsub; % Number of workers for distributed computing (depends on sys
 if numworkers > 0
     delete(gcp('nocreate')) % Shut down any existing pool
     % Initialize and launch a parallel pool (only if running at the CBU)
-    P=cbupool(numworkers, '--mem-per-cpu=4G --time=12:00:00 --nodelist=node-j10');
+    P=cbupool(numworkers, '--mem-per-cpu=4G --time=12:00:00 --nodelist=node-j11');
     parpool(P, P.NumWorkers);
     % Run the following line to initialize pool if script is not being run at the CBU
     % parpool(numworkers); 
@@ -180,8 +183,8 @@ parfor (s = 1:nsub, numworkers)
     
     % Prepare SPM structure for this subject with concatenated info
     SPM = [];
-    SPM.xY.RT  = 2;
-    SPM.nscan = sum(nscan);
+    SPM.xY.RT  = TR;
+    SPM.nscan = sum(nscan(s,:));
     SPM.xBF.T = 16;
     SPM.xBF.T0 = 8;
     SPM.xBF.name = 'hrf';
@@ -198,17 +201,16 @@ parfor (s = 1:nsub, numworkers)
     time_so_far = 0; volfiles = {}; movepar = [];
     
     % Specify output directory for this subject
-    outdir = fullfile(derpth,subdir{s}, 'func')   
     cd(outdir) 
       
     % Loop over runs
     for r = 1:length(runs)       
         
         % Get files with volumes for this run
-        volfiles{r} = spm_select('ExtFPList',fullfile(derpth,subdir{s},'func'),sprintf('^swsub-.*run-%s_bold\\.nii$',runs{r}),[1:nscan(r)]);
+        volfiles{r} = spm_select('ExtFPList',fullfile(derpth,subdir{s},'fmri'),sprintf('^swsub-.*run-%s_bold\\.nii$',runs{r}),[1:nscan(s,r)]);
     
         % Get files with trial info for this run
-        trlfile = fullfile(derpth,subdir{s},'func',sprintf('sub-%s_run-%s_spmdef.mat',subs{s},runs{r}));
+        trlfile = fullfile(derpth,subdir{s},'fmri',sprintf('sub-%s_run-%s_spmdef.mat',subs{s},runs{r}));
         d = load(trlfile);
         
         % Read and assign onsets to conditions struct
@@ -216,11 +218,11 @@ parfor (s = 1:nsub, numworkers)
         conds.onsets{2} = [conds.onsets{2}; sort([d.onsets{1}; d.onsets{2}]) + time_so_far];
         
         % Keep track of time elapsed across runs
-        time_so_far = time_so_far + nscan(r)*TR;
+        time_so_far = time_so_far + nscan(s,r)*TR;
         
         % Get files with movement info for this run
-        d = load(spm_select('FPList',fullfile(derpth,subdir{s},'func'),sprintf('^rp.*run-%s.*\\.txt$',runs{r})));
-        d = d(1:nscan(r),:);
+        d = load(spm_select('FPList',fullfile(derpth,subdir{s},'fmri'),sprintf('^rp.*run-%s.*\\.txt$',runs{r})));
+        d = d(1:nscan(s,r),:);
         
         % Append movement parameters 
         movepar = [movepar; d];
@@ -253,7 +255,7 @@ parfor (s = 1:nsub, numworkers)
     
     % Call spm_fmri_concatenate to update SPM files for concatenated runs
     %----------------------------------------------------------------------     
-    SPM = spm_fmri_concatenate('SPM.mat', nscan); 
+    SPM = spm_fmri_concatenate('SPM.mat', nscan(s,:)); 
     delete('SPM_backup.mat');
     
     % Estimate new model
