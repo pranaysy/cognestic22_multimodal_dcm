@@ -201,6 +201,8 @@ parfor (s = 1:nsub, numworkers)
     time_so_far = 0; volfiles = {}; movepar = [];
     
     % Specify output directory for this subject
+    outdir = fullfile(derpth,subdir{s}, 'fmri', 'CatGLM');
+    mkdir(outdir)
     cd(outdir) 
       
     % Loop over runs
