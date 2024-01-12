@@ -289,8 +289,8 @@ end
 % Create VOI files (ie timeseries for ROIs)
 
 % Specify names and locations of ROIs
-ROI_names = {'lOFA','rOFA','lFFA','rFFA'};
-ROI_coord = {[-38, -86, -14],[+36, -86, -10],[-42, -56, -20],[+42, -52, -14]};
+ROI_names = {'bVC','lFFA','rFFA'};
+ROI_coord = {[0, -90, 0],[-42, -56, -20],[+42, -52, -14]};
 rad = 10; % radius
 
 % Preload SPMs just so parfor can work without loading
