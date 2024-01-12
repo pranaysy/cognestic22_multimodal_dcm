@@ -296,11 +296,11 @@ rad = 10; % radius
 % Preload SPMs just so parfor can work without loading
 allSPMs = {};
 for s = 1:nsub
-    tmp = load(fullfile(derpth,subdir{s}, 'func', 'SPM.mat'));
+    tmp = load(fullfile(derpth,subdir{s}, 'fmri', 'CatGLM', 'SPM.mat'));
     allSPMs{s} = tmp.SPM;
 end
 
-% Loop in parallell over subjects
+% Loop in parallel over subjects
 parfor (s = 1:nsub, numworkers) % can't parallelise with needing to load SPM
     if numworkers > 0
         spm_jobman('initcfg');
@@ -309,10 +309,8 @@ parfor (s = 1:nsub, numworkers) % can't parallelise with needing to load SPM
     end
     
     % Output directory for subject
-    outdir = fullfile(derpth,subdir{s}, 'func')
+    outdir = fullfile(derpth,subdir{s}, 'fmri', 'CatGLM');
     SPM = allSPMs{s};
-%     spmfile = fullfile(outdir,'SPM.mat');
-%     load(spmfile)
     
     % Define coordinate space
     [x,y,z] = ndgrid(1:SPM.xVol.DIM(1),1:SPM.xVol.DIM(2),1:SPM.xVol.DIM(3));
@@ -392,14 +390,11 @@ end
 %---------------------------------------------------------------------------------------
 
 ref_sub = 15; % eg subject 15
-outdir = fullfile(derpth,subdir{ref_sub},'func');
+outdir = fullfile(derpth,subdir{ref_sub},'fmri', 'CatGLM');
 load(fullfile(outdir,'SPM.mat'));
 
 % Initialize empty DCM structure
 DCM = [];
-
-% Specify names of ROIs in order
-ROI_names = {'lOFA','rOFA','lFFA','rFFA'};
 
 % Populate VOIs for each ROI
 for r = 1:numel(ROI_names)
@@ -529,7 +524,7 @@ GCM = {};
 for s = 1:nsub
     
     % Path to this subject's folder under derivatives
-    outdir = fullfile(derpth,subdir{s}, 'func');
+    outdir = fullfile(derpth,subdir{s}, 'fmri', 'CatGLM');
     
     % Iterate over models (we only have one here)
     for m = 1:length(models)
