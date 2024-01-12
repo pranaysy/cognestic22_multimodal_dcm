@@ -450,27 +450,19 @@ DCM.options.induced    = 0;
 % Full model
 
 DCM.a = [
-%    lOFA rOFA lFFA rFFA
-    [  1    1    1    0  ];   % lOFA
-    [  1    1    0    1  ];   % rOFA
-    [  1    0    1    1  ];   % lFFA
-    [  0    1    1    1  ];   % rFFA    
+%    bVC  lFFA  rFFA
+    [  1    1    1  ];   % bVC
+    [  1    1    1  ];   % lFFA
+    [  1    1    1  ];   % rFFA    
 ];
 DCM.c = [
 %     All  Faces  
-    [  1    0  ];   % lOFA
-    [  1    0  ];   % rOFA
+    [  1    0  ];   % bVC
     [  0    0  ];   % lFFA
     [  0    0  ];   % rFFA
 ];
 DCM.b(:,:,1) = zeros(DCM.n,DCM.n); % Corresponding to 'All'
-DCM.b(:,:,2) = [                   % Corresponding to 'Faces'
-%    lOFA rOFA lFFA rFFA
-    [  1    0    1    0  ];   % lOFA
-    [  0    1    0    1  ];   % rOFA
-    [  1    0    1    0  ];   % lFFA
-    [  0    1    0    1  ];   % rFFA    
-];
+DCM.b(:,:,2) = DCM.a;              % Corresponding to 'Faces' - all moderated
 DCM.d        = zeros(DCM.n,DCM.n,0); % needed else crashes in estimation
 
 %---------------------------------------------------------------------------------------
@@ -542,7 +534,10 @@ for s = 1:nsub
         end 
         
         % Set up DCM.Y
+        DCM.v   = length(DCM.xY(1).u); % number of time points
+        DCM.Y.Q = spm_Ce(ones(1,DCM.n)*DCM.v);
         DCM.Y.X0  = DCM.xY(1).X0;
+        DCM.Y.y = []; % clear to allow different nscans
         for i = 1:DCM.n
             DCM.Y.y(:,i)  = DCM.xY(i).u;
             DCM.Y.name{i} = DCM.xY(i).name;
@@ -550,15 +545,16 @@ for s = 1:nsub
 
         % Update onsets    
         load(fullfile(outdir,'SPM.mat'));
+        DCM.U.u = []; % clear to allow different nscans
         for u = 1:2
             DCM.U.u(:,u)  = SPM.Sess(1).U(u).u((32+1):end); % DCM allows for 2 TRs before first stimulus
             DCM.U.name{u} = SPM.Sess(1).U(u).name{1};
         end
 
-        % If some alternatives to update B (could update A,C too!)
-        if m>1
-            DCM.b(:,:,2) = altpar(m).B;
-        end
+%         % If some alternatives to update B (could update A,C too!)
+%         if m>1
+%             DCM.b(:,:,2) = altpar(m).B;
+%         end
         
         % Save this DCM specified for this subject
         save(DCMfile,'DCM');
@@ -779,7 +775,6 @@ spm_dcm_peb_review(BMA, GCM)
 % STEP 1: Define model space
 %---------------------------------------------------------------------------------------
 
-% As usual, our model space is a GCM
 GCM = {};
 
 % Load the 'Full' template DCM we specified earlier
