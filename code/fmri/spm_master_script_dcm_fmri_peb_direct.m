@@ -320,12 +320,12 @@ parfor (s = 1:nsub, numworkers) % can't parallelise with needing to load SPM
     
     % Prepare SPM structure for VOIs
     xSPM = [];
-    xSPM.Ic        = 1;
+    xSPM.Ic        = 2;
     xSPM.n         = 0;
     xSPM.u         = 0.001;
     xSPM.k         = 0;
     xSPM.title     = '';
-    xSPM.Im        = [];    
+    xSPM.Im        = [];
     xSPM.XYZmm = XYZmm;
     xSPM.XYZ   = XYZ;
     xSPM.M     = SPM.xVol.M; % irrelevant here
@@ -364,7 +364,7 @@ parfor (s = 1:nsub, numworkers) % can't parallelise with needing to load SPM
         % Extract first eigenvariate
         xY.name    = ROI_names{r};    
         xY.spec    = Vm;   
-        SPM.swd    = outdir;
+        %SPM.swd    = outdir;
         [Y,xY]     = spm_regions(xSPM,SPM,[],xY);
     end
 end
