@@ -266,8 +266,11 @@ parfor (s = 1:nsub, numworkers)
     
     % Evaluate Effects of Interest contrast
     try SPM = rmfield(SPM,'xCon'); end;
-    c = [eye(2) zeros(2,size(SPM.xX.X,2)-2)]';
-    SPM.xCon(1)   = spm_FcUtil('Set','Effects of Interest','F','c',c,SPM.xX.xKXs);
+    cv = [eye(2) zeros(2,size(SPM.xX.X,2)-2)]';
+    SPM.xCon(1)   = spm_FcUtil('Set','Effects of Interest','F','c',cv,SPM.xX.xKXs);
+    
+    cv = [1 0 zeros(1,size(SPM.xX.X,2)-2)]';
+    SPM.xCon(2)   = spm_FcUtil('Set','All > Baseline','T','c',cv,SPM.xX.xKXs);
     spm_contrasts(SPM);
 end
 
