@@ -775,132 +775,29 @@ spm_dcm_peb_review(BMA, GCM)
 % STEP 1: Define model space
 %---------------------------------------------------------------------------------------
 
-GCM = {};
-
-% Load the 'Full' template DCM we specified earlier
-% load(fullfile(fits_dir, 'templates', 'DCMs', 'DCM_Full.mat')) % Direct path
-model = load(outfile_full); % We already assigned the direct path to this variable
-DCM_Full = model.DCM;
-
 % Remove priors if present, they interfere with the internal model comparison code
 if isfield(DCM_Full, 'M')
     DCM_Full = rmfield(DCM_Full, 'M');
 end
 
-% 1. Model F+B+S (= Full model)
-GCM{1, 1} = DCM_Full;
-
-% 2. Model F+S (= No-backward, with Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Backward connections in B-matrix
-DCM.b(:,:,2) =  [
-%    lOFA rOFA lFFA rFFA
-    [  1    0    0    0  ];   % lOFA
-    [  0    1    0    0  ];   % rOFA
-    [  1    0    1    0  ];   % lFFA
-    [  0    1    0    1  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 2} = DCM;
-
-% 3. Model B+S (= No-forward, with Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Forward connections in B-matrix
-DCM.b(:,:,2) =  [
-%    lOFA rOFA lFFA rFFA
-    [  1    0    1    0  ];   % lOFA
-    [  0    1    0    1  ];   % rOFA
-    [  0    0    1    0  ];   % lFFA
-    [  0    0    0    1  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 3} = DCM;
-
-% 4. Model S (= Neither forward nor backward, only Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Forward and Backward connections in B-matrix
-DCM.b(:,:,2) =  [
-%    lOFA rOFA lFFA rFFA
-    [  1    0    0    0  ];   % lOFA
-    [  0    1    0    0  ];   % rOFA
-    [  0    0    1    0  ];   % lFFA
-    [  0    0    0    1  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 4} = DCM;
-
-% 5. Model F+B (= Both forward and backward, without Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Self connections in B-matrix
-DCM.b(:,:,2) =  [
-%    lOFA rOFA lFFA rFFA
-    [  0    0    1    0  ];   % lOFA
-    [  0    0    0    1  ];   % rOFA
-    [  1    0    0    0  ];   % lFFA
-    [  0    1    0    0  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 5} = DCM;
-
-% 6. Model F (= No-backward, without Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Backward connections in B-matrix
-DCM.b(:,:,2) =  [
-%    lOFA rOFA lFFA rFFA
-    [  0    0    0    0  ];   % lOFA
-    [  0    0    0    0  ];   % rOFA
-    [  1    0    0    0  ];   % lFFA
-    [  0    1    0    0  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 6} = DCM;
-
-% 7. Model B (= No-forward, without Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Forward and Self connections in B-matrix
-DCM.b(:,:,2) =  [
-%    lOFA rOFA lFFA rFFA
-    [  0    0    1    0  ];   % lOFA
-    [  0    0    0    1  ];   % rOFA
-    [  0    0    0    0  ];   % lFFA
-    [  0    0    0    0  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 7} = DCM;
-
-% 8. Model with no F/B/S (= Null model)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Forward, Backward & Self connections in B-matrix
-DCM.b(:,:,2) =  [
-%    lOFA rOFA lFFA rFFA
-    [  0    0    0    0  ];   % lOFA
-    [  0    0    0    0  ];   % rOFA
-    [  0    0    0    0  ];   % lFFA
-    [  0    0    0    0  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 8} = DCM;
+family = full(spm_perm_mtx(4));
+i_f = 1; i_b = 2; i_l = 3; i_s = 4;
+n_models = size(family, 1);
+GCM = cell(1, n_models);
+for n=1:n_models
+    
+    sw = family(n, :);
+    f = sw(i_f); b = sw(i_b); l = sw(i_l); s = sw(i_s);
+    
+    DCM = DCM_Full;               
+    DCM.b(:,:,2) = [
+        % bEVC lFFA rFFA
+        [  s    b    b ];   % bEVC
+        [  f    s    l ];   % lFFA
+        [  f    l    s ];   % rFFA
+        ];
+    GCM{1, n} = DCM; 
+end
 
 % Save model space
 gcm_families_file = fullfile(fits_dir, 'templates', 'GCMs', 'Families', 'GCM_ModelSpace8.mat');
@@ -908,9 +805,11 @@ save(gcm_families_file, 'GCM')
 
 % Visualize model space
 figure;
-for k=1:8
-    subplot(2,4,k);
-    imagesc(GCM{1, k}.b(:,:,2) + 0.75*~DCM_Full.b(:,:,2));
+for k=1:n_models
+    subplot(4,4,k);
+    imagesc(GCM{1, k}.b(:,:,2) + 0.5*GCM{1, 1}.b(:,:,2));
+    xticklabels({DCM_Full.xY.name});
+    yticklabels({DCM_Full.xY.name});
     colormap(gray)
     caxis([0, 1])
     title(sprintf('Model %02d', k))
@@ -943,8 +842,17 @@ save(outfile, 'BMA', 'BMR')
 % Are any between-region connections modulated regardless of self-connections?
 % Family 1: Models 1, 2, 3 & 5, 6, 7 have at least one forward or backward connection
 % Family 2: Models 4 and 8 have no F/B connections
-families = [1, 1, 1, 2, 1, 1, 1, 2];
-[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
+families = 1 + family(:, i_f); % Family 2 with Forward; Family 1 without
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); fam.family.post(2)
+
+families = 1 + family(:, i_b); % Family 2 with Backard; Family 1 without
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); fam.family.post(2)
+
+families = 1 + family(:, i_l); % Family 2 with Lateral; Family 1 without
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); fam.family.post(2)
+
+families = 1 + family(:, i_s); % Family 2 with Self; Family 1 without
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); fam.family.post(2)
 % Family 1 has overwhelming evidence (~1) -> between-region connections are modulated
 
 % Save this family-wise comparison
