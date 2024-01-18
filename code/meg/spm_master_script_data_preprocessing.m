@@ -51,8 +51,6 @@ subdir = cellfun(@(s) ['sub-' s], subs, 'UniformOutput',false);
 %% Prepare output directory
 %==========================================================================
 
-fprintf('%-40s: %30s', 'Copy files in derivatives','...');              %-#
-
 %-Create output directory tree if necessary
 %--------------------------------------------------------------------------
 spm_mkdir(outpth,subdir,{'meg','anat','fmri'});
@@ -65,16 +63,6 @@ spm_jsonwrite(fullfile(outpth,'pipeline_description.json'),struct(...
     'CodeURL','http://www.fil.ion.ucl.ac.uk/spm/',...
     'License','Creative Commons Attribution 4.0 International Public License'),...
     struct('indent','  '));
-
-%-Copy FIF files
-%--------------------------------------------------------------------------
-for s = 1:nsub
-    runs = spm_BIDS(BIDS,'runs', 'sub',subs{s}, 'modality','meg', 'type','meg');
-    for r = 1:numel(runs)
-        f = fullfile(rawpth,'derivatives','meg_derivatives',subdir{s},'ses-meg','meg',[subdir{s} '_ses-meg_task-facerecognition_run-' runs{r} '_proc-sss_meg.fif']);
-        spm_copy(f, fullfile(outpth,subdir{s},'meg'));
-    end
-end
 
 %-Copy and gunzip T1 MPRAGE images
 %--------------------------------------------------------------------------
@@ -114,7 +102,7 @@ parfor (s = 1:nsub, numworkers)
         S = [];
         %S.dataset = char(spm_BIDS(BIDS,'data','sub',subs{s},'type','meg','run', runs{r}, 'proc', 'sss'));
         % The sss maxfiltered .fif data files are in derivatives/meg_derivatives
-        S.dataset = fullfile(outpth,subdir{s},'meg',[subdir{s} '_ses-meg_task-facerecognition_run-' runs{r} '_proc-sss_meg.fif']);
+        S.dataset = fullfile(rawpth,'derivatives','meg_derivatives',subdir{s},'ses-meg','meg',[subdir{s} '_ses-meg_task-facerecognition_run-' runs{r} '_proc-sss_meg.fif']);
         S.mode = 'continuous';
         S.channels = {'EEG', 'MEGMAG', 'MEGPLANAR'};
         S.checkboundary = 1;
