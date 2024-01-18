@@ -263,8 +263,8 @@ save(fullfile(fits_dir, 'templates', 'GCMs', 'Full', 'GCM_DCM_Full.mat'), 'GCM')
 
 % Initialize Parallel Compute Pool (Example Instructions for CBU Cluster)
 P = gcp('nocreate');
+n_workers = length(input_files);
 if isempty(P)
-    n_workers = length(input_files);
     P=cbupool(n_workers, '--mem-per-cpu=4G --time=12:00:00 --nodelist=node-j11');
     parpool(P, P.NumWorkers);
     % parpool(n_workers); % Run this line if not at the CBU
