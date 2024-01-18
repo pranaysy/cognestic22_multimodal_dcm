@@ -78,7 +78,7 @@ spm_jobman('initcfg'); % Allows batch operations inside a script
 spm_get_defaults('cmdline',true);
 spm('defaults','EEG');
 
-spm eeg
+%spm eeg
 
 %---------------------------------------------------------------------------------------
 % STEP 3: Variables for folders 
