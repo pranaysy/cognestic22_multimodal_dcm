@@ -843,16 +843,16 @@ save(outfile, 'BMA', 'BMR')
 % Family 1: Models 1, 2, 3 & 5, 6, 7 have at least one forward or backward connection
 % Family 2: Models 4 and 8 have no F/B connections
 families = 1 + family(:, i_f); % Family 2 with Forward; Family 1 without
-[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); fam.family.post(2)
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); round(100*fam.family.post(2),1)
 
 families = 1 + family(:, i_b); % Family 2 with Backard; Family 1 without
-[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); fam.family.post(2)
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); round(100*fam.family.post(2),1)
 
 families = 1 + family(:, i_l); % Family 2 with Lateral; Family 1 without
-[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); fam.family.post(2)
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); round(100*fam.family.post(2),1)
 
 families = 1 + family(:, i_s); % Family 2 with Self; Family 1 without
-[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); fam.family.post(2)
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); round(100*fam.family.post(2),1)
 % Family 1 has overwhelming evidence (~1) -> between-region connections are modulated
 
 % Save this family-wise comparison
