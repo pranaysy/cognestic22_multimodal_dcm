@@ -43,3 +43,5 @@ code/fmri/.fgit
 
 # Ignore ./data folder
 data/
+*.jpg
+*.png
