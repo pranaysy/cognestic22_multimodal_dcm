@@ -117,7 +117,7 @@ DCM.name = name;
 %---------------------------------------------------------------------------------------
 
 % Specify modality
-DCM.xY.modality = 'MEGPLANAR';
+DCM.xY.modality = 'MEG';
 
 % Set up DCM analysis type
 DCM.options.analysis = 'ERP';   % Analyze evoked responses
@@ -228,7 +228,7 @@ DCM_Self = DCM; % Keep DCM in memory
 
 % Populate list of processed files as a column-order cell (N-files × 1)
 % These files should contain forward models (with or without gain matrices)
-files = dir(fullfile(base_dir, 'data', '**', 'wmaM*.mat'));
+files = dir(fullfile(base_dir, 'data', 'derivatives', '**', 'wmaM*.mat'));
 input_files = arrayfun(@(x) fullfile(x.folder, x.name), files, 'UniformOutput', false);
 
 % Generate GCM with rows corresponding to DCMs for all subjects, columns representing
