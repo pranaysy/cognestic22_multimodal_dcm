@@ -17,15 +17,14 @@
 
 clear;
 
-% Add SPM12 r7219 to the MATLAB path
-%addpath('SPM12PATH');
+% Add SPM12 to the MATLAB path
 addpath('/imaging/local/software/spm_cbu_svn/releases/spm12_latest/')
 spm('asciiwelcome');
 
 %% Input arguments
 %==========================================================================
 rawpth = '/imaging/henson/Wakeman/ds000117'; % Directory containing the raw data
-outdir = '/imaging/henson/Wakeman/cognestic22_multimodal_dcm';
+outdir = '/imaging/henson/Wakeman/pranay_does_things/CBU_Neuroimaging_2024_Test_Reset';
 scrpth = fullfile(outdir,'code');                     % Directory containing the SPM analysis scripts
 outpth = fullfile(outdir, 'data', 'derivatives',spm('Ver'));   % Output directory
 
@@ -36,19 +35,16 @@ keepdata   = false; % If false, intermediate files will be deleted to save disk 
 
 delete(gcp('nocreate'))
 numworkers = 16;
-P=cbupool(numworkers, '--mem-per-cpu=4G --time=72:00:00 --nodelist=node-j14');
+P=cbupool(numworkers, '--mem-per-cpu=4G --time=72:00:00 --nodelist=node-j10');
 parpool(P, P.NumWorkers);
 
 timewin    = [-100 500];
-epoch      = [-100 500];
-freqs      = [6:40];
 
 %% Parse BIDS-formatted dataset
 %==========================================================================
 BIDS   = spm_BIDS(rawpth);
 
 subs   = spm_BIDS(BIDS,'subjects', 'task','facerecognition');
-%subs   = subs(1:4); % Limit to first 4 subjects
 nsub   = numel(subs);
 subdir = cellfun(@(s) ['sub-' s], subs, 'UniformOutput',false);
 
@@ -59,8 +55,7 @@ fprintf('%-40s: %30s', 'Copy files in derivatives','...');              %-#
 
 %-Create output directory tree if necessary
 %--------------------------------------------------------------------------
-spm_mkdir(outpth,{'meg','func'});
-spm_mkdir(outpth,subdir,{'meg','anat','func'});
+spm_mkdir(outpth,subdir,{'meg','anat','fmri'});
 
 %-Pipeline description
 %--------------------------------------------------------------------------
@@ -145,14 +140,14 @@ parfor (s = 1:nsub, numworkers)
         S.filename = char(spm_BIDS(BIDS,'data','ses','meg','sub',subs{s},'run', runs{r},'type','events'));
         D = spm_eeg_prep(S);
         
-        % Downsample the data
-        S = [];
-        S.D = D;
-        S.method = 'resample';
-        S.fsample_new = 200;
-        D = spm_eeg_downsample(S);
-        
-        if ~keepdata, delete(S.D); end
+        % Do NOT downsample the data for DCM
+%         S = [];
+%         S.D = D;
+%         S.method = 'resample';
+%         S.fsample_new = 200;
+%         D = spm_eeg_downsample(S);
+%         
+%         if ~keepdata, delete(S.D); end
         
         Dc{r} = D.save();
     end
@@ -160,18 +155,20 @@ parfor (s = 1:nsub, numworkers)
     
     De = {};
     for r = 1:numel(runs)
-        S = [];
-        S.D = Dc{r};
-        S.type = 'butterworth';
-        S.band = 'high';
-        S.freq = 1;
-        S.dir = 'twopass';
-        S.order = 5;
-        S.prefix = 'f';
-        D = spm_eeg_filter(S);
+        
+% Baseline correction added during epoching should handle highpass
+%         S = [];
+%         S.D = Dc{r};
+%         S.type = 'butterworth';
+%         S.band = 'high';
+%         S.freq = 1;
+%         S.dir = 'twopass';
+%         S.order = 5;
+%         S.prefix = 'f';
+%         D = spm_eeg_filter(S);
         
         S = [];
-        S.D = D;
+        S.D = Dc{r};
         S.type = 'butterworth';
         S.band = 'low';
         S.freq = 40;
@@ -180,7 +177,7 @@ parfor (s = 1:nsub, numworkers)
         S.prefix = 'f';
         D = spm_eeg_filter(S);
         
-        if ~keepdata, delete(S.D); end
+%        if ~keepdata, delete(S.D); end
                
         S = [];
         S.D = D;
@@ -268,6 +265,8 @@ parfor (s = 1:nsub, numworkers)
     S.circularise = false;
     S.prefix = 'm';
     D = spm_eeg_average(S);
+    
+    if ~keepdata, delete(S.D); end
     
     % Set condition order 
     D = conditions(D, [1 2 3], {'Famous',  'Unfamiliar', 'Scrambled'});
