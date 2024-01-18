@@ -45,3 +45,5 @@ code/fmri/.fgit
 data/
 *.jpg
 *.png
+*.tar
+*.zip
