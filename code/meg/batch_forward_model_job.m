@@ -9,6 +9,6 @@ matlabbatch{1}.spm.meeg.source.headmodel.comment = '';
 matlabbatch{1}.spm.meeg.source.headmodel.meshing.meshes.mri = '<UNDEFINED>';
 matlabbatch{1}.spm.meeg.source.headmodel.meshing.meshres = 2;
 matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregbids.fidjson = '<UNDEFINED>';
-matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregbids.useheadshape = 0;
+matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregbids.useheadshape = 1;
 matlabbatch{1}.spm.meeg.source.headmodel.forward.eeg = 'EEG BEM';
 matlabbatch{1}.spm.meeg.source.headmodel.forward.meg = 'Single Shell';
