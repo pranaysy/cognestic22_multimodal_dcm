@@ -398,6 +398,7 @@ load(fullfile(outdir,'SPM.mat'));
 DCM = [];
 
 % Populate VOIs for each ROI
+ROI_names = {'bVC','lFFA','rFFA'};
 for r = 1:numel(ROI_names)
     load(fullfile(outdir,sprintf('VOI_%s_1.mat',ROI_names{r})),'xY');
     DCM.xY(r) = xY;
