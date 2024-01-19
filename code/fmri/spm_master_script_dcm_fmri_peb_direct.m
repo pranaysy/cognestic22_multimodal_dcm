@@ -141,13 +141,14 @@ TR = 2;
 %---------------------------------------------------------------------------------------
 
 numworkers = nsub; % Number of workers for distributed computing (depends on system)
-if numworkers > 0
-    delete(gcp('nocreate')) % Shut down any existing pool
-    % Initialize and launch a parallel pool (only if running at the CBU)
+P = gcp('nocreate');
+if isempty(P)
     P=cbupool(numworkers, '--mem-per-cpu=4G --time=12:00:00 --nodelist=node-j11');
     parpool(P, P.NumWorkers);
-    % Run the following line to initialize pool if script is not being run at the CBU
-    % parpool(numworkers); 
+    % parpool(n_workers); % Run this line if not at the CBU
+else
+    disp('Pool running')
+    %delete(P) % Shut down any existing pool
 end
 
 % Proceed to the next step if you need to extract VOI files, else jump to 'DCM' section
