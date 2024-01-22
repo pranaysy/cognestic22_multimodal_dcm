@@ -92,7 +92,7 @@ spm fmri
 %---------------------------------------------------------------------------------------
 
 % Specify root working directory 
-base_dir = '/imaging/henson/Wakeman/cognestic22_multimodal_dcm'; % Change this to yours
+base_dir = '/imaging/henson/Wakeman/pranay_does_things/CBU_Neuroimaging_2024_Test_Reset'; % Change this to yours
 
 % Sub-directory containing scripts
 srcpth = fullfile(base_dir,'code');
@@ -116,7 +116,8 @@ fits_dir = fullfile(base_dir, 'fits', 'batch_script', 'fmri');
 % runs = spm_BIDS(BIDS,'runs', 'modality','func', 'type','bold', 'task','facerecognition'); 
 
 % ...else just re-specify
-subs = compose('%02g', [1:9, 11:16]); % subject 10 had fewer scans in last run
+subs = compose('%02g', [1:16]); % subject 10 had fewer scans in last run
+%subs = compose('%02g', [1:9, 11:16]); % subject 10 had fewer scans in last run
 nsub   = numel(subs);
 subdir = cellfun(@(s) ['sub-' s], subs, 'UniformOutput',false);
 runs = compose('%02g', 1:9);
@@ -131,6 +132,8 @@ nrun = numel(runs);
 %nsub   = numel(subs);
 
 nscan = repmat(208,1,nrun); % sub-15, run-01 has 209 scans, so ignore last
+nscan = repmat(nscan,nsub,1);
+nscan(10,9) = 170; % subject 10 had fewer scans in last run
 TR = 2;
 
 %---------------------------------------------------------------------------------------
@@ -138,13 +141,14 @@ TR = 2;
 %---------------------------------------------------------------------------------------
 
 numworkers = nsub; % Number of workers for distributed computing (depends on system)
-if numworkers > 0
-    delete(gcp('nocreate')) % Shut down any existing pool
-    % Initialize and launch a parallel pool (only if running at the CBU)
-    P=cbupool(numworkers, '--mem-per-cpu=4G --time=12:00:00 --nodelist=node-j10');
+P = gcp('nocreate');
+if isempty(P)
+    P=cbupool(numworkers, '--mem-per-cpu=4G --time=12:00:00 --nodelist=node-j11');
     parpool(P, P.NumWorkers);
-    % Run the following line to initialize pool if script is not being run at the CBU
-    % parpool(numworkers); 
+    % parpool(n_workers); % Run this line if not at the CBU
+else
+    disp('Pool running')
+    %delete(P) % Shut down any existing pool
 end
 
 % Proceed to the next step if you need to extract VOI files, else jump to 'DCM' section
@@ -176,7 +180,8 @@ cd(derpth)
 for s = 1:nsub    
     
     % Directory specific to this subject
-    outdir = fullfile(derpth,subdir{s}, 'func');
+    outdir = fullfile(derpth,subdir{s}, 'fmri');
+    mkdir(outdir)
 
     % Prepare conditions
     for t = 1:2
@@ -191,7 +196,7 @@ for s = 1:nsub
     for r = 1:length(runs)    
         
         % Get files with volumes for this run
-        volfiles{r} = spm_select('ExtFPList',outdir,sprintf('^swsub-.*run-%s_bold\\.nii$',runs{r}),[1:nscan(r)]);
+        volfiles{r} = spm_select('ExtFPList',outdir,sprintf('^swsub-.*run-%s_bold\\.nii$',runs{r}),[1:nscan(s,r)]);
         
         % Get files with trial info for this run
         trlfile = fullfile(outdir,sprintf('sub-%s_run-%s_spmdef.mat',subs{s},runs{r}));
@@ -202,11 +207,11 @@ for s = 1:nsub
         conds.onsets{2} = [conds.onsets{2}; sort([d.onsets{1}; d.onsets{2}]) + time_so_far];
         
         % Keep track of time elapsed across runs
-        time_so_far = time_so_far + nscan(r)*TR;
+        time_so_far = time_so_far + nscan(s,r)*TR;
         
         % Get files with movement info for this run
         d = load(spm_select('FPList',outdir,sprintf('^rp.*run-%s.*\\.txt$',runs{r})));
-        d = d(1:nscan(r),:);
+        d = d(1:nscan(s,r),:);
         
         % Append movement parameters 
         movepar = [movepar; d];
@@ -242,16 +247,16 @@ parfor (s = 1:nsub, numworkers)
     % Specify concatenated model
     %---------------------------------------------------------------------- 
     % Path to job file
-    jobfile = {fullfile(scrpth,'fmri', 'batch_stats_fmri_concatenated_specify_job.m')};
+    jobfile = {fullfile(srcpth,'fmri', 'batch_stats_fmri_concatenated_specify_job.m')};
     
     % Output directory for this subject
-    outdir = fullfile(derpth,subdir{s}, 'func')
+    outdir = fullfile(derpth,subdir{s}, 'fmri')
     
     % Prepare inputs according to the order listed in jobfile
     inputs  = {};
     
     % INPUT #1: Output directory
-    inputs{1} = cellstr(outdir); % Output directory
+    inputs{1} = cellstr(fullfile(outdir, 'CatGLM')); % Output directory
     
     % INPUT #2: Concatenated volume file for this subject
     volfiles = load(fullfile(outdir,sprintf('sub-%s_run-concat_volfiles.mat',subs{s})));
@@ -270,14 +275,14 @@ parfor (s = 1:nsub, numworkers)
     
     % Call spm_fmri_concatenate to update SPM files for concatenated runs
     %----------------------------------------------------------------------    
-    cd(outdir)
-    spmfile = fullfile(outdir,'SPM.mat');
-    SPM = spm_fmri_concatenate(spmfile, nscan); % Assumes nscan already in memory from above (could save instead)
+    cd(fullfile(outdir, 'CatGLM'))
+    spmfile = fullfile(outdir, 'CatGLM', 'SPM.mat');
+    SPM = spm_fmri_concatenate(spmfile, nscan(s,:)); % Assumes nscan already in memory from above (could save instead)
     delete('SPM_backup.mat');
     
     % Estimate new model
     %----------------------------------------------------------------------    
-    jobfile = {fullfile(scrpth, 'fmri','batch_stats_fmri_concatenated_estimate_job.m')};
+    jobfile = {fullfile(srcpth, 'fmri','batch_stats_fmri_concatenated_estimate_job.m')};
     inputs  = {};
     inputs{1} = cellstr(spmfile);
     spm_jobman('run', jobfile, inputs{:});
@@ -298,8 +303,8 @@ end
 % Create VOI files (ie timeseries for ROIs)
 
 % Specify names and locations of ROIs
-ROI_names = {'lOFA','rOFA','lFFA','rFFA'};
-ROI_coord = {[-38, -86, -14],[+36, -86, -10],[-42, -56, -20],[+42, -52, -14]};
+ROI_names = {'bVC','lFFA','rFFA'};
+ROI_coord = {[0, -90, 0],[-42, -56, -20],[+42, -52, -14]};
 
 % Loop over subjects in parallel
 parfor (s = 1:nsub, numworkers)
@@ -312,14 +317,14 @@ parfor (s = 1:nsub, numworkers)
     end
     
     % Output directory for subject
-    outdir = fullfile(derpth,subdir{s}, 'func')
+    outdir = fullfile(derpth,subdir{s}, 'fmri', 'CatGLM');
     cd(outdir)
     
     % Path to SPM.mat file generated from previous step after concatenation
     spmfile = fullfile(outdir,'SPM.mat');
     
     % Specify job file
-    jobfile = {fullfile(scrpth,'fmri', 'batch_VOI_job.m')};  
+    jobfile = {fullfile(srcpth,'fmri', 'batch_VOI_job.m')};  
     
     % Loop over ROIs, populate inputs and run job for each ROI
     for r = 1:numel(ROI_names)
