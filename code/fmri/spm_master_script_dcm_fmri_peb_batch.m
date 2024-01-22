@@ -366,14 +366,14 @@ end
 % STEP 1: Data
 %---------------------------------------------------------------------------------------
 ref_sub = 15; % eg subject 15
-outdir = fullfile(derpth,subdir{ref_sub}, 'func');
+outdir = fullfile(derpth,subdir{ref_sub}, 'fmri', 'CatGLM');
 load(fullfile(outdir,'SPM.mat'));
 
 % Initialize empty DCM structure
 DCM = [];
 
 % Specify names of ROIs in order
-ROI_names = {'lOFA','rOFA','lFFA','rFFA'};
+ROI_names = {'bVC','lFFA','rFFA'};
 
 % Populate VOIs for each ROI
 for r = 1:numel(ROI_names)
@@ -427,30 +427,22 @@ DCM.options.induced    = 0;
 %---------------------------------------------------------------------------------------
 
 % Full model
-
 DCM.a = [
-%    lOFA rOFA lFFA rFFA
-    [  1    1    1    0  ];   % lOFA
-    [  1    1    0    1  ];   % rOFA
-    [  1    0    1    1  ];   % lFFA
-    [  0    1    1    1  ];   % rFFA    
+%    bVC  lFFA  rFFA
+    [  1    1    1  ];   % bVC
+    [  1    1    1  ];   % lFFA
+    [  1    1    1  ];   % rFFA    
 ];
 DCM.c = [
 %     All  Faces  
-    [  1    0  ];   % lOFA
-    [  1    0  ];   % rOFA
+    [  1    0  ];   % bVC
     [  0    0  ];   % lFFA
     [  0    0  ];   % rFFA
 ];
 DCM.b(:,:,1) = zeros(DCM.n,DCM.n); % Corresponding to 'All'
-DCM.b(:,:,2) = [                   % Corresponding to 'Faces'
-%    lOFA rOFA lFFA rFFA
-    [  1    0    1    0  ];   % lOFA
-    [  0    1    0    1  ];   % rOFA
-    [  1    0    1    0  ];   % lFFA
-    [  0    1    0    1  ];   % rFFA    
-];
+DCM.b(:,:,2) = DCM.a;              % Corresponding to 'Faces' - all moderated
 DCM.d        = zeros(DCM.n,DCM.n,0); % needed else crashes in estimation
+
 
 %---------------------------------------------------------------------------------------
 % STEP 4: Save
@@ -502,46 +494,70 @@ GCMname = name_tag;
 templatedir = fullfile(fits_dir, 'templates', 'GCMs', GCMname);
 % Note: innermost folder name is same as GCM file name
 
-% Path to job file for executing this operation
-jobfile = {fullfile(srcpth,'fmri', 'batch_dcm_create_gcm_job.m')}; 
-
 %---------------------------------------------------------------------------------------
-% STEP 2: Specify inputs
+% STEP 2: Specify each subject's DCM from template DCM
 %---------------------------------------------------------------------------------------
 
-% Prepare inputs, 9 total, as per order listed in the job file
-inputs  = {};
+% Load template model
+model = load(outfile_full); % This will load the 'Full' model
+models = {name_tag};
+DCM_Full = model.DCM;
 
-% Input #1: Path to output directory containing template GCM with 'Full' model
-inputs{1} = cellstr(templatedir);
-
-% Input #2: Name of GCM
-inputs{2} = GCMname;
-
-% Input #3: Path to 'Full' template DCM (specified earlier)
-inputs{3} = {outfile_full};
-
-% Input #4: Path to alternative DCMs (empty here, we'll use later for model space)
-inputs{4} = ''; %{fullfile(derpth,subdir{ref_sub},'DCM_self.mat')};
-
-% Input #5: Paths to SPM.mat file for each subject
+GCM = {};
 for s = 1:nsub
-    inputs{5}{s,1} = fullfile(derpth,subdir{s},'func','SPM.mat');
-end
+    
+    % Path to this subject's folder under derivatives
+    outdir = fullfile(derpth,subdir{s}, 'fmri', 'CatGLM');
+    
+    % Iterate over models (we only have one here)
+    for m = 1:length(models)
+        
+        % Specify output file for DCM specification
+        DCMfile = fullfile(outdir,['DCM_' models{m} '.mat']);
+        
+        % Make copy of full model
+        DCM = DCM_Full;
+        
+        % Update VOI data
+        for r = 1:numel(ROI_names)
+            load(fullfile(outdir,sprintf('VOI_%s_1.mat',ROI_names{r})),'xY');
+            DCM.xY(r) = xY;
+        end 
+        
+        % Set up DCM.Y
+        DCM.v   = length(DCM.xY(1).u); % number of time points
+        DCM.Y.Q = spm_Ce(ones(1,DCM.n)*DCM.v);
+        DCM.Y.X0  = DCM.xY(1).X0;
+        DCM.Y.y = []; % clear to allow different nscans
+        for i = 1:DCM.n
+            DCM.Y.y(:,i)  = DCM.xY(i).u;
+            DCM.Y.name{i} = DCM.xY(i).name;
+        end
 
-% Input #6-9: Paths to VOL*.mat files for each subject
-for r = 1:numel(ROI_names)
-    files = {};
-    for s = 1:nsub
-        inputs{5+r}{s,1} = fullfile(derpth,subdir{s},'func',sprintf('VOI_%s_1.mat',ROI_names{r}));
+        % Update onsets    
+        load(fullfile(outdir,'SPM.mat'));
+        DCM.U.u = []; % clear to allow different nscans
+        for u = 1:2
+            DCM.U.u(:,u)  = SPM.Sess(1).U(u).u((32+1):end); % DCM allows for 2 TRs before first stimulus
+            DCM.U.name{u} = SPM.Sess(1).U(u).name{1};
+        end
+
+%         % If some alternatives to update B (could update A,C too!)
+%         if m>1
+%             DCM.b(:,:,2) = altpar(m).B;
+%         end
+        
+        % Save this DCM specified for this subject
+        save(DCMfile,'DCM');
+        
+        % Append to GCM array
+        GCM{s,m} = DCMfile;
+        
     end
 end
 
-%---------------------------------------------------------------------------------------
-% STEP 3: Execute
-%---------------------------------------------------------------------------------------
-
-spm_jobman('run', jobfile, inputs{:});
+% Save GCM
+save(fullfile(templatedir, 'GCM_Full.mat'),'GCM');    
 
 %---------------------------------------------------------------------------------------
 % OUTPUTS
