@@ -219,15 +219,15 @@ for s = 1:nsub
     end
     
     % Save concatenated volumes
-    volsfile = fullfile(outdir,sprintf('sub-%s_run-concat_volfiles.mat',subs{s}));
+    volsfile = fullfile(outdir, 'CatGLM', sprintf('sub-%s_run-concat_volfiles.mat',subs{s}));
     save(volsfile,'volfiles');
     
     % Save concatenated trial info
-    condfile = fullfile(outdir,sprintf('sub-%s_run-concat_spmdef.mat',subs{s}));
+    condfile = fullfile(outdir, 'CatGLM', sprintf('sub-%s_run-concat_spmdef.mat',subs{s}));
     save(condfile,'-struct','conds');
     
     % Save concatenated movement parameters
-    movefile = fullfile(outdir,sprintf('rp_sub-%s_run-concat_spmdef.txt',subs{s}));
+    movefile = fullfile(outdir, 'CatGLM', sprintf('rp_sub-%s_run-concat_spmdef.txt',subs{s}));
     save(movefile,'movepar','-ascii');
     
 end
@@ -250,24 +250,24 @@ parfor (s = 1:nsub, numworkers)
     jobfile = {fullfile(srcpth,'fmri', 'batch_stats_fmri_concatenated_specify_job.m')};
     
     % Output directory for this subject
-    outdir = fullfile(derpth,subdir{s}, 'fmri')
+    outdir = fullfile(derpth,subdir{s}, 'fmri', 'CatGLM')
     
     % Prepare inputs according to the order listed in jobfile
     inputs  = {};
     
     % INPUT #1: Output directory
-    inputs{1} = cellstr(fullfile(outdir, 'CatGLM')); % Output directory
+    inputs{1} = cellstr(outdir); % Output directory
     
     % INPUT #2: Concatenated volume file for this subject
-    volfiles = load(fullfile(outdir,sprintf('sub-%s_run-concat_volfiles.mat',subs{s})));
+    volfiles = load(fullfile(outdir, sprintf('sub-%s_run-concat_volfiles.mat',subs{s})));
     inputs{2} = cellstr(cat(1,volfiles.volfiles{:}));
     
     % INPUT #3: Concatenated trial info file for this subject
-    condfile = fullfile(outdir,sprintf('sub-%s_run-concat_spmdef.mat',subs{s}));
+    condfile = fullfile(outdir, sprintf('sub-%s_run-concat_spmdef.mat',subs{s}));
     inputs{3} = cellstr(condfile);
     
     % INPUT #4: Concatenated movement parameter file for this subject
-    movefile = fullfile(outdir,sprintf('rp_sub-%s_run-concat_spmdef.txt',subs{s}));
+    movefile = fullfile(outdir, sprintf('rp_sub-%s_run-concat_spmdef.txt',subs{s}));
     inputs{4} = cellstr(movefile);
     
     % Execute job for this subject with given inputs and jobfile
@@ -275,8 +275,8 @@ parfor (s = 1:nsub, numworkers)
     
     % Call spm_fmri_concatenate to update SPM files for concatenated runs
     %----------------------------------------------------------------------    
-    cd(fullfile(outdir, 'CatGLM'))
-    spmfile = fullfile(outdir, 'CatGLM', 'SPM.mat');
+    cd(outdir)
+    spmfile = fullfile(outdir, 'SPM.mat');
     SPM = spm_fmri_concatenate(spmfile, nscan(s,:)); % Assumes nscan already in memory from above (could save instead)
     delete('SPM_backup.mat');
     
