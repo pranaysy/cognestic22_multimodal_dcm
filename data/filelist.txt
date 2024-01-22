@@ -3,291 +3,225 @@ data
     └── SPM12
         ├── sub-01
         │   ├── fmri
-        │   │   ├── SPM.mat
-        │   │   ├── VOI_lFFA_1_eigen.nii
-        │   │   ├── VOI_lFFA_1.mat
-        │   │   ├── VOI_lFFA_mask.nii
-        │   │   ├── VOI_lOFA_1_eigen.nii
-        │   │   ├── VOI_lOFA_1.mat
-        │   │   ├── VOI_lOFA_mask.nii
-        │   │   ├── VOI_rFFA_1_eigen.nii
-        │   │   ├── VOI_rFFA_1.mat
-        │   │   ├── VOI_rFFA_mask.nii
-        │   │   ├── VOI_rOFA_1_eigen.nii
-        │   │   ├── VOI_rOFA_1.mat
-        │   │   └── VOI_rOFA_mask.nii
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-01_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-01_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-01_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-01_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-01_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-01_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         ├── sub-02
         │   ├── fmri
-        │   │   ├── SPM.mat
-        │   │   ├── VOI_lFFA_1_eigen.nii
-        │   │   ├── VOI_lFFA_1.mat
-        │   │   ├── VOI_lFFA_mask.nii
-        │   │   ├── VOI_lOFA_1_eigen.nii
-        │   │   ├── VOI_lOFA_1.mat
-        │   │   ├── VOI_lOFA_mask.nii
-        │   │   ├── VOI_rFFA_1_eigen.nii
-        │   │   ├── VOI_rFFA_1.mat
-        │   │   ├── VOI_rFFA_mask.nii
-        │   │   ├── VOI_rOFA_1_eigen.nii
-        │   │   ├── VOI_rOFA_1.mat
-        │   │   └── VOI_rOFA_mask.nii
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-02_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-02_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-02_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-02_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-02_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-02_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         ├── sub-03
         │   ├── fmri
-        │   │   ├── SPM.mat
-        │   │   ├── VOI_lFFA_1_eigen.nii
-        │   │   ├── VOI_lFFA_1.mat
-        │   │   ├── VOI_lFFA_mask.nii
-        │   │   ├── VOI_lOFA_1_eigen.nii
-        │   │   ├── VOI_lOFA_1.mat
-        │   │   ├── VOI_lOFA_mask.nii
-        │   │   ├── VOI_rFFA_1_eigen.nii
-        │   │   ├── VOI_rFFA_1.mat
-        │   │   ├── VOI_rFFA_mask.nii
-        │   │   ├── VOI_rOFA_1_eigen.nii
-        │   │   ├── VOI_rOFA_1.mat
-        │   │   └── VOI_rOFA_mask.nii
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-03_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-03_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-03_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-03_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-03_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-03_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         ├── sub-04
         │   ├── fmri
-        │   │   ├── SPM.mat
-        │   │   ├── VOI_lFFA_1_eigen.nii
-        │   │   ├── VOI_lFFA_1.mat
-        │   │   ├── VOI_lFFA_mask.nii
-        │   │   ├── VOI_lOFA_1_eigen.nii
-        │   │   ├── VOI_lOFA_1.mat
-        │   │   ├── VOI_lOFA_mask.nii
-        │   │   ├── VOI_rFFA_1_eigen.nii
-        │   │   ├── VOI_rFFA_1.mat
-        │   │   ├── VOI_rFFA_mask.nii
-        │   │   ├── VOI_rOFA_1_eigen.nii
-        │   │   ├── VOI_rOFA_1.mat
-        │   │   └── VOI_rOFA_mask.nii
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-04_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-04_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-04_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-04_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-04_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-04_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         ├── sub-05
         │   ├── fmri
-        │   │   ├── SPM.mat
-        │   │   ├── VOI_lFFA_1_eigen.nii
-        │   │   ├── VOI_lFFA_1.mat
-        │   │   ├── VOI_lFFA_mask.nii
-        │   │   ├── VOI_lOFA_1_eigen.nii
-        │   │   ├── VOI_lOFA_1.mat
-        │   │   ├── VOI_lOFA_mask.nii
-        │   │   ├── VOI_rFFA_1_eigen.nii
-        │   │   ├── VOI_rFFA_1.mat
-        │   │   ├── VOI_rFFA_mask.nii
-        │   │   ├── VOI_rOFA_1_eigen.nii
-        │   │   ├── VOI_rOFA_1.mat
-        │   │   └── VOI_rOFA_mask.nii
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-05_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-05_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-05_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-05_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-05_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-05_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         ├── sub-06
         │   ├── fmri
-        │   │   ├── SPM.mat
-        │   │   ├── VOI_lFFA_1_eigen.nii
-        │   │   ├── VOI_lFFA_1.mat
-        │   │   ├── VOI_lFFA_mask.nii
-        │   │   ├── VOI_lOFA_1_eigen.nii
-        │   │   ├── VOI_lOFA_1.mat
-        │   │   ├── VOI_lOFA_mask.nii
-        │   │   ├── VOI_rFFA_1_eigen.nii
-        │   │   ├── VOI_rFFA_1.mat
-        │   │   ├── VOI_rFFA_mask.nii
-        │   │   ├── VOI_rOFA_1_eigen.nii
-        │   │   ├── VOI_rOFA_1.mat
-        │   │   └── VOI_rOFA_mask.nii
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-06_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-06_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-06_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-06_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-06_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-06_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         ├── sub-07
         │   ├── fmri
-        │   │   ├── SPM.mat
-        │   │   ├── VOI_lFFA_1_eigen.nii
-        │   │   ├── VOI_lFFA_1.mat
-        │   │   ├── VOI_lFFA_mask.nii
-        │   │   ├── VOI_lOFA_1_eigen.nii
-        │   │   ├── VOI_lOFA_1.mat
-        │   │   ├── VOI_lOFA_mask.nii
-        │   │   ├── VOI_rFFA_1_eigen.nii
-        │   │   ├── VOI_rFFA_1.mat
-        │   │   ├── VOI_rFFA_mask.nii
-        │   │   ├── VOI_rOFA_1_eigen.nii
-        │   │   ├── VOI_rOFA_1.mat
-        │   │   └── VOI_rOFA_mask.nii
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-07_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-07_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-07_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-07_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-07_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-07_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         ├── sub-08
         │   ├── fmri
-        │   │   ├── SPM.mat
-        │   │   ├── VOI_lFFA_1_eigen.nii
-        │   │   ├── VOI_lFFA_1.mat
-        │   │   ├── VOI_lFFA_mask.nii
-        │   │   ├── VOI_lOFA_1_eigen.nii
-        │   │   ├── VOI_lOFA_1.mat
-        │   │   ├── VOI_lOFA_mask.nii
-        │   │   ├── VOI_rFFA_1_eigen.nii
-        │   │   ├── VOI_rFFA_1.mat
-        │   │   ├── VOI_rFFA_mask.nii
-        │   │   ├── VOI_rOFA_1_eigen.nii
-        │   │   ├── VOI_rOFA_1.mat
-        │   │   └── VOI_rOFA_mask.nii
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-08_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-08_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-08_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-08_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-08_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-08_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         ├── sub-09
         │   ├── fmri
-        │   │   ├── SPM.mat
-        │   │   ├── VOI_lFFA_1_eigen.nii
-        │   │   ├── VOI_lFFA_1.mat
-        │   │   ├── VOI_lFFA_mask.nii
-        │   │   ├── VOI_lOFA_1_eigen.nii
-        │   │   ├── VOI_lOFA_1.mat
-        │   │   ├── VOI_lOFA_mask.nii
-        │   │   ├── VOI_rFFA_1_eigen.nii
-        │   │   ├── VOI_rFFA_1.mat
-        │   │   ├── VOI_rFFA_mask.nii
-        │   │   ├── VOI_rOFA_1_eigen.nii
-        │   │   ├── VOI_rOFA_1.mat
-        │   │   └── VOI_rOFA_mask.nii
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-09_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-09_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-09_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-09_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-09_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-09_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         ├── sub-10
+        │   ├── fmri
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-10_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-10_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-10_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-10_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-10_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-10_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         ├── sub-11
         │   ├── fmri
-        │   │   ├── SPM.mat
-        │   │   ├── VOI_lFFA_1_eigen.nii
-        │   │   ├── VOI_lFFA_1.mat
-        │   │   ├── VOI_lFFA_mask.nii
-        │   │   ├── VOI_lOFA_1_eigen.nii
-        │   │   ├── VOI_lOFA_1.mat
-        │   │   ├── VOI_lOFA_mask.nii
-        │   │   ├── VOI_rFFA_1_eigen.nii
-        │   │   ├── VOI_rFFA_1.mat
-        │   │   ├── VOI_rFFA_mask.nii
-        │   │   ├── VOI_rOFA_1_eigen.nii
-        │   │   ├── VOI_rOFA_1.mat
-        │   │   └── VOI_rOFA_mask.nii
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-11_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-11_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-11_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-11_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-11_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-11_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         ├── sub-12
         │   ├── fmri
-        │   │   ├── SPM.mat
-        │   │   ├── VOI_lFFA_1_eigen.nii
-        │   │   ├── VOI_lFFA_1.mat
-        │   │   ├── VOI_lFFA_mask.nii
-        │   │   ├── VOI_lOFA_1_eigen.nii
-        │   │   ├── VOI_lOFA_1.mat
-        │   │   ├── VOI_lOFA_mask.nii
-        │   │   ├── VOI_rFFA_1_eigen.nii
-        │   │   ├── VOI_rFFA_1.mat
-        │   │   ├── VOI_rFFA_mask.nii
-        │   │   ├── VOI_rOFA_1_eigen.nii
-        │   │   ├── VOI_rOFA_1.mat
-        │   │   └── VOI_rOFA_mask.nii
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-12_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-12_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-12_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-12_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-12_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-12_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         ├── sub-13
         │   ├── fmri
-        │   │   ├── SPM.mat
-        │   │   ├── VOI_lFFA_1_eigen.nii
-        │   │   ├── VOI_lFFA_1.mat
-        │   │   ├── VOI_lFFA_mask.nii
-        │   │   ├── VOI_lOFA_1_eigen.nii
-        │   │   ├── VOI_lOFA_1.mat
-        │   │   ├── VOI_lOFA_mask.nii
-        │   │   ├── VOI_rFFA_1_eigen.nii
-        │   │   ├── VOI_rFFA_1.mat
-        │   │   ├── VOI_rFFA_mask.nii
-        │   │   ├── VOI_rOFA_1_eigen.nii
-        │   │   ├── VOI_rOFA_1.mat
-        │   │   └── VOI_rOFA_mask.nii
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-13_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-13_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-13_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-13_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-13_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-13_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         ├── sub-14
         │   ├── fmri
-        │   │   ├── SPM.mat
-        │   │   ├── VOI_lFFA_1_eigen.nii
-        │   │   ├── VOI_lFFA_1.mat
-        │   │   ├── VOI_lFFA_mask.nii
-        │   │   ├── VOI_lOFA_1_eigen.nii
-        │   │   ├── VOI_lOFA_1.mat
-        │   │   ├── VOI_lOFA_mask.nii
-        │   │   ├── VOI_rFFA_1_eigen.nii
-        │   │   ├── VOI_rFFA_1.mat
-        │   │   ├── VOI_rFFA_mask.nii
-        │   │   ├── VOI_rOFA_1_eigen.nii
-        │   │   ├── VOI_rOFA_1.mat
-        │   │   └── VOI_rOFA_mask.nii
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-14_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-14_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-14_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-14_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-14_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-14_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         ├── sub-15
         │   ├── fmri
-        │   │   ├── SPM.mat
-        │   │   ├── VOI_lFFA_1_eigen.nii
-        │   │   ├── VOI_lFFA_1.mat
-        │   │   ├── VOI_lFFA_mask.nii
-        │   │   ├── VOI_lOFA_1_eigen.nii
-        │   │   ├── VOI_lOFA_1.mat
-        │   │   ├── VOI_lOFA_mask.nii
-        │   │   ├── VOI_rFFA_1_eigen.nii
-        │   │   ├── VOI_rFFA_1.mat
-        │   │   ├── VOI_rFFA_mask.nii
-        │   │   ├── VOI_rOFA_1_eigen.nii
-        │   │   ├── VOI_rOFA_1.mat
-        │   │   └── VOI_rOFA_mask.nii
+        │   │   └── CatGLM
+        │   │       ├── SPM.mat
+        │   │       ├── VOI_bVC_1.mat
+        │   │       ├── VOI_bVC_mask.nii
+        │   │       ├── VOI_lFFA_1.mat
+        │   │       ├── VOI_lFFA_mask.nii
+        │   │       ├── VOI_rFFA_1.mat
+        │   │       └── VOI_rFFA_mask.nii
         │   └── meg
-        │       ├── wmaMceffdspmeeg_sub-15_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-        │       ├── wmaMceffdspmeeg_sub-15_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-        │       └── SPMgainmatrix_wmaMceffdspmeeg_sub-15_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── SPMgainmatrix_wmaMcefspmeeg_sub-15_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+        │       ├── wmaMcefspmeeg_sub-15_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+        │       └── wmaMcefspmeeg_sub-15_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
         └── sub-16
             ├── fmri
-            │   ├── SPM.mat
-            │   ├── VOI_lFFA_1_eigen.nii
-            │   ├── VOI_lFFA_1.mat
-            │   ├── VOI_lFFA_mask.nii
-            │   ├── VOI_lOFA_1_eigen.nii
-            │   ├── VOI_lOFA_1.mat
-            │   ├── VOI_lOFA_mask.nii
-            │   ├── VOI_rFFA_1_eigen.nii
-            │   ├── VOI_rFFA_1.mat
-            │   ├── VOI_rFFA_mask.nii
-            │   ├── VOI_rOFA_1_eigen.nii
-            │   ├── VOI_rOFA_1.mat
-            │   └── VOI_rOFA_mask.nii
+            │   └── CatGLM
+            │       ├── SPM.mat
+            │       ├── VOI_bVC_1.mat
+            │       ├── VOI_bVC_mask.nii
+            │       ├── VOI_lFFA_1.mat
+            │       ├── VOI_lFFA_mask.nii
+            │       ├── VOI_rFFA_1.mat
+            │       └── VOI_rFFA_mask.nii
             └── meg
-                ├── wmaMceffdspmeeg_sub-16_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
-                ├── wmaMceffdspmeeg_sub-16_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
-                └── SPMgainmatrix_wmaMceffdspmeeg_sub-16_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+                ├── SPMgainmatrix_wmaMcefspmeeg_sub-16_ses-meg_task-facerecognition_run-01_proc-sss_meg_1.mat
+                ├── wmaMcefspmeeg_sub-16_ses-meg_task-facerecognition_run-01_proc-sss_meg.dat
+                └── wmaMcefspmeeg_sub-16_ses-meg_task-facerecognition_run-01_proc-sss_meg.mat
