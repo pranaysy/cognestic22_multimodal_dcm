@@ -13,6 +13,5 @@ matlabbatch{1}.spm.dcm.spec.fmri.group.data.region = {
                                                       '<UNDEFINED>'
                                                       '<UNDEFINED>'
                                                       '<UNDEFINED>'
-                                                      '<UNDEFINED>'
                                                       }';
 
