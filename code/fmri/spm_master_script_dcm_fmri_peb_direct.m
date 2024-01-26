@@ -717,11 +717,10 @@ DCM = DCM_Full;
 
 % Switch off between-region connections
 DCM.b(:,:,2) = [
-%    lOFA rOFA lFFA rFFA
-    [  1    0    0    0  ];   % lOFA
-    [  0    1    0    0  ];   % rOFA
-    [  0    0    1    0  ];   % lFFA
-    [  0    0    0    1  ];   % rFFA
+%    bVC lFFA rFFA
+    [  1    0    0  ];   % bVC
+    [  0    1    0  ];   % lFFA
+    [  0    0    1  ];   % rFFA
 ];
 
 % Save reduced model as a template 
@@ -781,15 +780,23 @@ if isfield(DCM_Full, 'M')
     DCM_Full = rmfield(DCM_Full, 'M');
 end
 
-family = full(spm_perm_mtx(4));
-i_f = 1; i_b = 2; i_l = 3; i_s = 4;
-n_models = size(family, 1);
+% Generate all 16 models in one shot (alternatively, can use nested for-loops)
+family = full(spm_perm_mtx(4));     % This has 16 rows and 4 columns
+% Each column corresponds to one kind of connection, either F/B/L/S
+% Assign indices to each kind of connection
+i_f = 1;    i_b = 2;    i_l = 3;    i_s = 4; 
+
+% Initialise model space, and loop over each model and turn on/off connections
+n_models = size(family, 1);  % As many models as there are rows, here, 16
 GCM = cell(1, n_models);
 for n=1:n_models
     
+    % Switches for current model, vector of 4 elements
     sw = family(n, :);
-    f = sw(i_f); b = sw(i_b); l = sw(i_l); s = sw(i_s);
+    % Separate the switches out for each kind of connection using indices defined above
+    f = sw(i_f);    b = sw(i_b);    l = sw(i_l);    s = sw(i_s);
     
+    % Clone the template 'Full' model and set switches on the 'b' matrix
     DCM = DCM_Full;               
     DCM.b(:,:,2) = [
         % bEVC lFFA rFFA
@@ -797,11 +804,13 @@ for n=1:n_models
         [  f    s    l ];   % lFFA
         [  f    l    s ];   % rFFA
         ];
+    
+    % Store model in array
     GCM{1, n} = DCM; 
 end
 
 % Save model space
-gcm_families_file = fullfile(fits_dir, 'templates', 'GCMs', 'Families', 'GCM_ModelSpace8.mat');
+gcm_families_file = fullfile(fits_dir, 'templates', 'GCMs', 'Families', 'GCM_ModelSpace16.mat');
 save(gcm_families_file, 'GCM')
 
 % Visualize model space
@@ -841,19 +850,14 @@ save(outfile, 'BMA', 'BMR')
 % HYPOTHESIS 1
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % Are any between-region connections modulated regardless of self-connections?
-% Family 1: Models 1, 2, 3 & 5, 6, 7 have at least one forward or backward connection
-% Family 2: Models 4 and 8 have no F/B connections
-families = 1 + family(:, i_f); % Family 2 with Forward; Family 1 without
-[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); round(100*fam.family.post(2),1)
-
-families = 1 + family(:, i_b); % Family 2 with Backard; Family 1 without
-[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); round(100*fam.family.post(2),1)
-
-families = 1 + family(:, i_l); % Family 2 with Lateral; Family 1 without
-[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); round(100*fam.family.post(2),1)
-
-families = 1 + family(:, i_s); % Family 2 with Self; Family 1 without
-[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); round(100*fam.family.post(2),1)
+% Family 1: Models 1 to 14 have at least one forward, backward or lateral connection
+% Family 2: Models 15 and 16 have no forward, backward or lateral connections
+families = family(:, i_f) | family(:, i_b) | family(:, i_l);  % Using switches
+families = 1 + ~(families)'; % Family 1 with between-region; Family 2 without
+% Alternatively, instead of using switches, families can be manually specified:
+% families = [ones([1, 14]), 2, 2];  % Manual specification
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
+fprintf('Evidence for family 1 (extrinsic): \t%.01f%%\n', round(100*fam.family.post(1),1));
 % Family 1 has overwhelming evidence (~1) -> between-region connections are modulated
 
 % Save this family-wise comparison
@@ -863,11 +867,15 @@ save(outfile, 'BMAf', 'fam')
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % HYPOTHESIS 2a
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Are any forward connections modulated regardless of backward or self-connections?
-% Family 1: Models 1, 2, 5, 6 have at least one forward connection
-% Family 2: Models 3, 4, 7, 8 have no forward connection
-families = [1, 1, 2, 2, 1, 1, 2, 2];
+% Are any forward connections modulated regardless of backward/lateral/self-connections?
+% Family 1: Models 1 to 8 have at least one forward connection
+% Family 2: Models 9 to 16 have no forward connection
+families = family(:, i_f);   % Using switches
+families = 1 + ~families'; % Family 1 with Forward; Family 2 without
+% Alternatively, instead of using switches, families can be manually specified:
+% families = [ones([1, 8]), 2*ones([1, 8])];  % Manual specification
 [BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
+fprintf('Evidence for family 1 (forward): \t%.01f%%\n', round(100*fam.family.post(1),1));
 % Family 1 has significantly greater evidence (>0.95)
 
 % Save this family-wise comparison
@@ -877,11 +885,15 @@ save(outfile, 'BMAf', 'fam')
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % HYPOTHESIS 2b
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Are any backward connections modulated regardless of forward or self-connections?
-% Family 1: Models 1, 3, 5, 7 have at least one backward connection
-% Family 2: Models 2, 4, 6, 8 have no backward connection
-families = [1, 2, 1, 2, 1, 2, 1, 2];
+% Are any backward connections modulated regardless of forward/lateral/self-connections?
+% Family 1: Models 1-4 and 9-12 have at least one backward connection
+% Family 2: Models 5-8 and 13-16 have no backward connection
+families = family(:, i_b);
+families = 1 + ~families'; % Family 1 with Backward; Family 2 without
+% Alternatively, instead of using switches, families can be manually specified:
+% families = repelem([1,2,1,2], 4);  % Manual specification
 [BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
+fprintf('Evidence for family 1 (backward): \t%.01f%%\n', round(100*fam.family.post(1),1));
 % Family 1 has overwhelming evidence (~1)
 
 % Save this family-wise comparison
@@ -889,13 +901,35 @@ outfile = fullfile(fits_dir, 'BMC_Families_BetweenRegion_Backward.mat');
 save(outfile, 'BMAf', 'fam')
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% HYPOTHESIS 2c
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Are any lateral connections modulated regardless of forward/backward/self-connections?
+% Family 1: Models 1, 2, 5, 6, 9, 10, 13, 14 have at least one lateral connection
+% Family 2: Models 3, 4, 7, 8, 11, 12, 15, 16 have no lateral connection
+families = family(:, i_l);
+families = 1 + ~families'; % Family 1 with Lateral; Family 2 without
+% Alternatively, instead of using switches, families can be manually specified:
+% families = repmat([1,1,2,2], [1,4]);  % Manual specification
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
+fprintf('Evidence for family 1 (lateral): \t%.01f%%\n', round(100*fam.family.post(1),1));
+% Family 1 has moderate evidence (~0.76)
+
+% Save this family-wise comparison
+outfile = fullfile(fits_dir, 'BMC_Families_BetweenRegion_Lateral.mat');
+save(outfile, 'BMAf', 'fam')
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % HYPOTHESIS 3
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Are any self connections modulated regardless of forward or backward connections?
-% Family 1: Models 1, 2, 3, 4 have at least one self connection
-% Family 2: Models 5, 6, 7, 8 have no self connection
-families = [1, 1, 1, 1, 2, 2, 2, 2];
-[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
+% Are any self connections modulated regardless of forward/backward/lateral connections?
+% Family 1: Models 1, 3, 5, 7, 9, 11, 13, 15 have at least one self connection
+% Family 2: Models 2, 4, 6, 8, 10, 12, 14, 16 have no self connection
+families = family(:, i_s);
+families = 1 + ~families'; % Family 1 with Self; Family 2 without
+% Alternatively, instead of using switches, families can be manually specified:
+% families = repmat([1,2], [1,8]);  % Manual specification
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); 
+fprintf('Evidence for family 1 (self): \t\t%.01f%%\n', round(100*fam.family.post(1),1));
 % Family 1 has overwhelming evidence (~1)
 
 % Save this family-wise comparison
@@ -906,8 +940,8 @@ save(outfile, 'BMAf', 'fam')
 % OUTPUTS
 %---------------------------------------------------------------------------------------
 % Running this batch job will produce the following output in the folder 'fits_dir'
-% 1. GCM model space file 'GCM_ModelSpace8.mat' in fits_dir/templates/GCMs/Families
-%       This file consists of the 8 models we specified as columns of the GCM cell array
+% 1. GCM model space file 'GCM_ModelSpace16.mat' in fits_dir/templates/GCMs/Families
+%       This file consists of the 16 models we specified as columns of the GCM cell array
 % 2. BMA and BMR in the file 'BMA_BMR_Families.mat' in fits_dir
 %       This file consists of both BMA and BMR variables which represent the average
 %       over all 8 models and the 8 reduced models respectively.
@@ -915,7 +949,8 @@ save(outfile, 'BMAf', 'fam')
 %       i. 'BMC_Families_BetweenRegion.mat': Modulation of any between-region connections
 %       ii. 'BMC_Families_BetweenRegion_Forward.mat': Modulation of any forward connections
 %       iii. 'BMC_Families_BetweenRegion_Backward.mat': Modulation of any backward connections
-%       iv. 'BMC_Families_Self.mat': Modulation of any self-connections
+%       iv. 'BMC_Families_BetweenRegion_Lateral.mat': Modulation of any lateral connections
+%       v. 'BMC_Families_Self.mat': Modulation of any self-connections
 
 %---------------------------------------------------------------------------------------
 %
@@ -941,14 +976,13 @@ save(outfile, 'BMAf', 'fam')
 % Define covariates, and assign appropriate labels
 PEB_name = 'Age';
 covariate_name = 'Age';
-covariate_values = [31, 25, 30, 26, 23, 26, 31, 26, 29, 24, 24, 25, 24, 30, 25]';
-%covariate_name = 'Sex';
-%covariate_values = [0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0]'; % 1=Female
+covariate_values = [31, 25, 30, 26, 23, 26, 31, 26, 29, 23, 24, 24, 25, 24, 30, 25]';
 
 % Mean-center the covariate (Optional)
-covariate_values = covariate_values - mean(covariate_values);
+covariate_values = round(covariate_values - mean(covariate_values), 1);
 
 % Design Matrix
+M = [];
 M.X = [ones([length(covariate_values), 1]), covariate_values]; % First covariate is group mean
 M.Xnames = {'Commonalities', 'Age'};
 M.Q = 'all'; % Random effects over all parameters

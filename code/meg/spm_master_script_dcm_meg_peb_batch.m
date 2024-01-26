@@ -42,7 +42,7 @@
 %   1. Baseline correction is done during epoching for this tutorial, skipped in paper.
 %   2. Robust averaging is done per condition for this tutorial (simple avg in paper).
 
-%---------------------------------------------------------------------------------------
+%% -------------------------------------------------------------------------------------
 %                                                            
 %      .d8888b.           888                      
 %     d88P  Y88b          888                      
@@ -94,7 +94,7 @@ fits_dir = fullfile(base_dir, 'fits', 'batch_script', 'meg');
 % All code is present in this directory
 code_dir = fullfile(base_dir, 'code', 'meg');
 
-%---------------------------------------------------------------------------------------
+%% -------------------------------------------------------------------------------------
 %                                                 
 %     8888888b.   .d8888b.  888b     d888 
 %     888  "Y88b d88P  Y88b 8888b   d8888 
@@ -221,7 +221,7 @@ DCM.B{1} = self_connections;
 dcm_self_file = fullfile(fits_dir, 'templates', 'DCMs', strcat(DCM.name, '.mat'));
 save(dcm_self_file, 'DCM')
 
-%---------------------------------------------------------------------------------------
+%% -------------------------------------------------------------------------------------
 %                                                                                         
 %     8888888888         888    d8b                        888            
 %     888                888    Y8P                        888            
@@ -308,7 +308,7 @@ spm_jobman('run', jobfile, inputs{:});
 %       These are the same as the estimated GCM file in (2) but are one per subject (16
 %       total) instead of an array like GCM. Useful for quick inspection in the DCM GUI. 
 
-%---------------------------------------------------------------------------------------
+%% -------------------------------------------------------------------------------------
 %
 %      .d8888b.                                    888      
 %     d88P  Y88b                                   888      
@@ -360,7 +360,7 @@ spm_jobman('run', jobfile, inputs{:});
 %       This is the BMA obtained after averaging reduced models that contribute
 %       significantly to model evidence. Can be reviewed by calling spm_dcm_peb_review.
 
-%---------------------------------------------------------------------------------------
+%% -------------------------------------------------------------------------------------
 %
 %      .d8888b.                                                           
 %     d88P  Y88b                                                          
@@ -424,7 +424,7 @@ spm_jobman('run', jobfile, inputs{:});
 % comparison carried out. Example: 'BMA_PEB_Full_vs_Self.mat'. This can be done manually
 % or via the batch interface by selecting the relevant file operations module.
 
-%---------------------------------------------------------------------------------------
+%% -------------------------------------------------------------------------------------
 %
 %     8888888888                     d8b 888 d8b                   
 %     888                            Y8P 888 Y8P                   
@@ -441,138 +441,51 @@ spm_jobman('run', jobfile, inputs{:});
 % STEP 1: Define model space
 %---------------------------------------------------------------------------------------
 
-% As usual, our model space is a GCM
-GCM = {};
-
 % Remove priors if present, they interfere with the internal model comparison code
 if isfield(DCM_Full, 'M')
     DCM_Full = rmfield(DCM_Full, 'M');
 end
 
-% 1. Model F+B+S (= Full model)
-GCM{1, 1} = DCM_Full;
+% Generate all 16 models in one shot (alternatively, can use nested for-loops)
+family = full(spm_perm_mtx(4));     % This has 16 rows and 4 columns
+% Each column corresponds to one kind of connection, either F/B/L/S
+% Assign indices to each kind of connection
+i_f = 1;    i_b = 2;    i_l = 3;    i_s = 4; 
 
-% 2. Model F+S (= No-backward, with Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Backward connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  1    0    0    0  ];   % lOFA
-    [  0    1    0    0  ];   % rOFA
-    [  1    0    1    0  ];   % lFFA
-    [  0    1    0    1  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 2} = DCM;
-
-% 3. Model B+S (= No-forward, with Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Forward connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  1    0    1    0  ];   % lOFA
-    [  0    1    0    1  ];   % rOFA
-    [  0    0    1    0  ];   % lFFA
-    [  0    0    0    1  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 3} = DCM;
-
-% 4. Model S (= Neither forward nor backward, only Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Forward and Backward connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  1    0    0    0  ];   % lOFA
-    [  0    1    0    0  ];   % rOFA
-    [  0    0    1    0  ];   % lFFA
-    [  0    0    0    1  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 4} = DCM;
-
-% 5. Model F+B (= Both forward and backward, without Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Self connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  0    0    1    0  ];   % lOFA
-    [  0    0    0    1  ];   % rOFA
-    [  1    0    0    0  ];   % lFFA
-    [  0    1    0    0  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 5} = DCM;
-
-% 6. Model F (= No-backward, without Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Backward connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  0    0    0    0  ];   % lOFA
-    [  0    0    0    0  ];   % rOFA
-    [  1    0    0    0  ];   % lFFA
-    [  0    1    0    0  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 6} = DCM;
-
-% 7. Model B (= No-forward, without Self)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Forward and Self connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  0    1    1    0  ];   % lOFA
-    [  1    0    0    1  ];   % rOFA
-    [  0    0    0    0  ];   % lFFA
-    [  0    0    0    0  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 7} = DCM;
-
-% 8. Model with no F/B/S (= Null model)
-% Get full DCM specification
-DCM = DCM_Full;
-
-% Switch off Forward, Backward & Self connections in B-matrix
-DCM.B{1} =  [
-%    lOFA rOFA lFFA rFFA
-    [  0    0    0    0  ];   % lOFA
-    [  0    0    0    0  ];   % rOFA
-    [  0    0    0    0  ];   % lFFA
-    [  0    0    0    0  ];   % rFFA
-];
-
-% Append to GCM
-GCM{1, 8} = DCM;
+% Initialise model space, and loop over each model and turn on/off connections
+n_models = size(family, 1);  % As many models as there are rows, here, 16
+GCM = cell(1, n_models);
+for n=1:n_models
+    
+    % Switches for current model, vector of 4 elements
+    sw = family(n, :);
+    % Separate the switches out for each kind of connection using indices defined above
+    f = sw(i_f);    b = sw(i_b);    l = sw(i_l);    s = sw(i_s);
+    
+    % Clone the template 'Full' model and set switches on the 'b' matrix
+    DCM = DCM_Full;               
+    DCM.b(:,:,2) = [
+        % bEVC lFFA rFFA
+        [  s    b    b ];   % bEVC
+        [  f    s    l ];   % lFFA
+        [  f    l    s ];   % rFFA
+        ];
+    
+    % Store model in array
+    GCM{1, n} = DCM; 
+end
 
 % Save model space
-gcm_families_file = fullfile(fits_dir, 'templates', 'GCMs', 'Families', 'GCM_ModelSpace8.mat');
+gcm_families_file = fullfile(fits_dir, 'templates', 'GCMs', 'Families', 'GCM_ModelSpace16.mat');
 save(gcm_families_file, 'GCM')
 
 % Visualize model space
 figure;
-for k=1:8
-    subplot(2,4,k);
-    imagesc(GCM{1, k}.B{1} + 0.75*~GCM{1, 1}.B{1});
+for k=1:n_models
+    subplot(4,4,k);
+    imagesc(GCM{1, k}.b(:,:,2) + 0.5*GCM{1, 1}.b(:,:,2));
+    xticklabels({DCM_Full.xY.name});
+    yticklabels({DCM_Full.xY.name});
     colormap(gray)
     caxis([0, 1])
     title(sprintf('Model %02d', k))
@@ -584,7 +497,7 @@ end
 %---------------------------------------------------------------------------------------
 
 % Load estimated PEB from file
-load(fullfile(fits_dir, sprintf('PEB_%s.mat', name_tag)))
+load(fullfile(fits_dir, 'PEB_Full.mat'))
 
 % Bayesian Model Reduction (BMR) and comparison of models
 [BMA, BMR] = spm_dcm_peb_bmc(PEB, GCM);
@@ -603,10 +516,14 @@ save(outfile, 'BMA', 'BMR')
 % HYPOTHESIS 1
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % Are any between-region connections modulated regardless of self-connections?
-% Family 1: Models 1, 2, 3 & 5, 6, 7 have at least one forward or backward connection
-% Family 2: Models 4 and 8 have no F/B connections
-families = [1, 1, 1, 2, 1, 1, 1, 2];
+% Family 1: Models 1 to 14 have at least one forward, backward or lateral connection
+% Family 2: Models 15 and 16 have no forward, backward or lateral connections
+families = family(:, i_f) | family(:, i_b) | family(:, i_l);  % Using switches
+families = 1 + ~(families)'; % Family 1 with between-region; Family 2 without
+% Alternatively, instead of using switches, families can be manually specified:
+% families = [ones([1, 14]), 2, 2];  % Manual specification
 [BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
+fprintf('Evidence for family 1 (extrinsic): \t%.01f%%\n', round(100*fam.family.post(1),1));
 % Family 1 has overwhelming evidence (~1) -> between-region connections are modulated
 
 % Save this family-wise comparison
@@ -616,12 +533,16 @@ save(outfile, 'BMAf', 'fam')
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % HYPOTHESIS 2a
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Are any forward connections modulated regardless of backward or self-connections?
-% Family 1: Models 1, 2, 5, 6 have at least one forward connection
-% Family 2: Models 3, 4, 7, 8 have no forward connection
-families = [1, 1, 2, 2, 1, 1, 2, 2];
+% Are any forward connections modulated regardless of backward/lateral/self-connections?
+% Family 1: Models 1 to 8 have at least one forward connection
+% Family 2: Models 9 to 16 have no forward connection
+families = family(:, i_f);   % Using switches
+families = 1 + ~families'; % Family 1 with Forward; Family 2 without
+% Alternatively, instead of using switches, families can be manually specified:
+% families = [ones([1, 8]), 2*ones([1, 8])];  % Manual specification
 [BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
-% Family 2 has greater evidence (~0.6)
+fprintf('Evidence for family 1 (forward): \t%.01f%%\n', round(100*fam.family.post(1),1));
+% Family 1 has overwhelming evidence (~1)
 
 % Save this family-wise comparison
 outfile = fullfile(fits_dir, 'BMC_Families_BetweenRegion_Forward.mat');
@@ -630,26 +551,52 @@ save(outfile, 'BMAf', 'fam')
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % HYPOTHESIS 2b
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Are any backward connections modulated regardless of forward or self-connections?
-% Family 1: Models 1, 3, 5, 7 have at least one backward connection
-% Family 2: Models 2, 4, 6, 8 have no backward connection
-families = [1, 2, 1, 2, 1, 2, 1, 2];
+% Are any backward connections modulated regardless of forward/lateral/self-connections?
+% Family 1: Models 1-4 and 9-12 have at least one backward connection
+% Family 2: Models 5-8 and 13-16 have no backward connection
+families = family(:, i_b);
+families = 1 + ~families'; % Family 1 with Backward; Family 2 without
+% Alternatively, instead of using switches, families can be manually specified:
+% families = repelem([1,2,1,2], 4);  % Manual specification
 [BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
-% Family 1 has overwhelming evidence (~1)
+fprintf('Evidence for family 1 (backward): \t%.01f%%\n', round(100*fam.family.post(1),1));
+% Family 1 has negligible evidence (~0.07)
 
 % Save this family-wise comparison
 outfile = fullfile(fits_dir, 'BMC_Families_BetweenRegion_Backward.mat');
 save(outfile, 'BMAf', 'fam')
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% HYPOTHESIS 2c
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Are any lateral connections modulated regardless of forward/backward/self-connections?
+% Family 1: Models 1, 2, 5, 6, 9, 10, 13, 14 have at least one lateral connection
+% Family 2: Models 3, 4, 7, 8, 11, 12, 15, 16 have no lateral connection
+families = family(:, i_l);
+families = 1 + ~families'; % Family 1 with Lateral; Family 2 without
+% Alternatively, instead of using switches, families can be manually specified:
+% families = repmat([1,1,2,2], [1,4]);  % Manual specification
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
+fprintf('Evidence for family 1 (lateral): \t%.01f%%\n', round(100*fam.family.post(1),1));
+% Family 1 has overwhelming evidence (~1)
+
+% Save this family-wise comparison
+outfile = fullfile(fits_dir, 'BMC_Families_BetweenRegion_Lateral.mat');
+save(outfile, 'BMAf', 'fam')
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % HYPOTHESIS 3
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Are any self connections modulated regardless of forward or backward connections?
-% Family 1: Models 1, 2, 3, 4 have at least one self connection
-% Family 2: Models 5, 6, 7, 8 have no self connection
-families = [1, 1, 1, 1, 2, 2, 2, 2];
-[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE');
-% Family 2 has moderately greater evidence (~0.85)
+% Are any self connections modulated regardless of forward/backward/lateral connections?
+% Family 1: Models 1, 3, 5, 7, 9, 11, 13, 15 have at least one self connection
+% Family 2: Models 2, 4, 6, 8, 10, 12, 14, 16 have no self connection
+families = family(:, i_s);
+families = 1 + ~families'; % Family 1 with Self; Family 2 without
+% Alternatively, instead of using switches, families can be manually specified:
+% families = repmat([1,2], [1,8]);  % Manual specification
+[BMAf, fam] = spm_dcm_peb_bmc_fam(BMA, BMR, families, 'NONE'); 
+fprintf('Evidence for family 1 (self): \t\t%.01f%%\n', round(100*fam.family.post(1),1));
+% Family 1 has moderate evidence (~0.82)
 
 % Save this family-wise comparison
 outfile = fullfile(fits_dir, 'BMC_Families_Self.mat');
@@ -659,8 +606,8 @@ save(outfile, 'BMAf', 'fam')
 % OUTPUTS
 %---------------------------------------------------------------------------------------
 % Running this batch job will produce the following output in the folder 'fits_dir'
-% 1. GCM model space file 'GCM_ModelSpace8.mat' in fits_dir/templates/GCMs/Families
-%       This file consists of the 8 models we specified as columns of the GCM cell array
+% 1. GCM model space file 'GCM_ModelSpace16.mat' in fits_dir/templates/GCMs/Families
+%       This file consists of the 16 models we specified as columns of the GCM cell array
 % 2. BMA and BMR in the file 'BMA_BMR_Families.mat' in fits_dir
 %       This file consists of both BMA and BMR variables which represent the average
 %       over all 8 models and the 8 reduced models respectively.
@@ -668,9 +615,10 @@ save(outfile, 'BMAf', 'fam')
 %       i. 'BMC_Families_BetweenRegion.mat': Modulation of any between-region connections
 %       ii. 'BMC_Families_BetweenRegion_Forward.mat': Modulation of any forward connections
 %       iii. 'BMC_Families_BetweenRegion_Backward.mat': Modulation of any backward connections
-%       iv. 'BMC_Families_Self.mat': Modulation of any self-connections
+%       iv. 'BMC_Families_BetweenRegion_Lateral.mat': Modulation of any lateral connections
+%       v. 'BMC_Families_Self.mat': Modulation of any self-connections
 
-%---------------------------------------------------------------------------------------
+%% -------------------------------------------------------------------------------------
 %
 %      .d8888b.                                     d8b          888                     
 %     d88P  Y88b                                    Y8P          888                     
@@ -692,14 +640,11 @@ save(outfile, 'BMAf', 'fam')
 %---------------------------------------------------------------------------------------
 
 % Define covariates, and assign appropriate labels
-PEB_name = 'Age';
 covariate_name = 'Age';
 covariate_values = [31, 25, 30, 26, 23, 26, 31, 26, 29, 23, 24, 24, 25, 24, 30, 25]';
-%covariate_name = 'Sex';
-%covariate_values = [0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0]'; % 1=Female
 
 % Mean-center the covariate (Optional)
-covariate_values = covariate_values - mean(covariate_values);
+covariate_values = round(covariate_values - mean(covariate_values), 1);
 
 %---------------------------------------------------------------------------------------
 % STEP 2: Setup jobfile and inputs 
